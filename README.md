@@ -18,15 +18,14 @@
 
 To install:
 
-```
-$ git clone https://github.com/MDU-PHL/meningotype
-```
+    $ git clone https://github.com/MDU-PHL/meningotype
+
 
 ### To test installation
 
 Once installed, you can run the following to ensure `meningotype` is successfully working:
 
-    ```$ meningotype.py --test```
+    $ meningotype.py --test
 
 If everything works, you will see the following:
 
@@ -43,7 +42,7 @@ test/X.fna	X
 test/Y.fna	Y
 ```
 
-or, to check finetyping:
+or to check finetyping:
 
 ```
 $ meningotype.py --test --finetype
@@ -61,7 +60,7 @@ test/Y.fna	Y	5-2,10-1	F4-1
 
 ##Usage
 
-```	$ meningotype.py -h
+	$ meningotype.py -h
 
 	usage: 
 	  meningotype.py [OPTIONS] <fasta1> <fasta2> <fasta3> ... <fastaN>
@@ -85,7 +84,7 @@ test/Y.fna	Y	5-2,10-1	F4-1
 	  --updatedb  update allele database from <www.ng-mast.net>
 	  --test      run test example
 	  --version   show program's version number and exit
-```
+
 
 ##Quick start
 
@@ -99,7 +98,7 @@ The serotypes are printed in tab-separated format to `stdout`.
 
 `$ meningotype.py <fasta1> <fasta2> <fasta3> ... <fastaN>  > results.txt`
 
-**To perform *in silico* serotyping AND finetyping of the porA and fetA genes:
+**To perform *in silico* serotyping AND finetyping of the porA and fetA genes:**
 
 `$ meningotype.py --finetype <fasta1> <fasta2> <fasta3> ... <fastaN>`
 
@@ -129,7 +128,7 @@ GitHub https://github.com/MDU-PHL/meningotype
 
 Please submit via the [GitHub issues page](https://github.com/MDU-PHL/meningotype/issues).  
 
-Note that the finetyping databases and website are curated and hosted by http://pubmlst.org/neisseria/. For issues with the databases, please contact the pubmlst curator](mailto:keith.jolley@zoo.ox.ac.uk).
+Note that the finetyping databases and website are curated and hosted by http://pubmlst.org/neisseria/. For issues with the databases, please contact the [pubmlst curator](mailto:keith.jolley@zoo.ox.ac.uk).
 
 ##Software Licence
 
