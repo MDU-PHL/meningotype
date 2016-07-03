@@ -1,9 +1,0 @@
-meningotype.py
-setup.py
-meningotype.egg-info/PKG-INFO
-meningotype.egg-info/SOURCES.txt
-meningotype.egg-info/dependency_links.txt
-meningotype.egg-info/entry_points.txt
-meningotype.egg-info/not-zip-safe
-meningotype.egg-info/requires.txt
-meningotype.egg-info/top_level.txt

@@ -1,3 +1,0 @@
-[console_scripts]
-meningotype = meningotype:main
-
