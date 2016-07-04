@@ -23,7 +23,7 @@ setup(name='meningotype',
       author='Jason Kwong',
       author_email='kwongj@gmail.com',
       license='GPLv3',
-      #packages=['.'],
+      packages=['meningotype'],
       install_requires=[
           'argparse',
           'BioPython',
