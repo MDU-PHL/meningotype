@@ -16,9 +16,26 @@
 
 ##Installation
 
-To install:
+The easiest way of installing `meningotype` is using `pip`:
 
-    $ git clone https://github.com/MDU-PHL/meningotype
+    $ pip install --user git+https://github.com/MDU-PHL/meningotype.git
+    
+The `--user` option will install the package locally, rather than in the global `python` directory. 
+
+Thus, by default, this will install the package in `$HOME/.local/`, and the executable in `$HOME/.local/bin/`. To install the executable in a custom location (e.g., `$HOME/bin`), use the following:
+
+    $ pip install --install-option="--install-scripts=$HOME/bin" --user git+https://github.com/MDU-PHL/meningotype.git
+
+To upgrade to a newer version: 
+
+    $ pip install --upgrade --install-option="--install-scripts=$HOME/bin" --user git+https://github.com/MDU-PHL/meningotype.git
+
+The simplest way to install dependencies is to use the Brew (Mac OS X) or LinuxBrew (Linux) system. Users who have difficulty installing isPcr from source (eg. Mac OS) may have more success with Brew:
+```
+$ brew tap homebrew/science
+$ brew tap chapmanb/cbl
+$ brew tap tseemann/homebrew-bioinformatics-linux
+```
 
 
 ### To test installation
