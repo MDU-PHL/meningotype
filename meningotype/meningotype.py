@@ -253,7 +253,7 @@ def main():
 
 	# Test example to check meningotype works
 	if args.test:
-		TESTpath = sys.path[0] + '/test/'
+		TESTpath = resource_filename(__name__, 'test')
 		testSEQS = [TESTpath+'A.fna', TESTpath+'B.fna', TESTpath+'C.fna', TESTpath+'W.fna', TESTpath+'X.fna', TESTpath+'Y.fna']
 		msg('Running meningotype.py on test examples ... ')
 		msg('$ meningotype.py A.fna B.fna C.fna W.fna X.fna Y.fna')
