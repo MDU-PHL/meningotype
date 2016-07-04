@@ -7,12 +7,12 @@ def readme():
 
 
 setup(name='meningotype',
-      version='v0.1-alpha',
+      version='v0.1-beta',
       description='In silico serotyping and finetyping (porA and fetA) of Neisseria meningitidis',
       long_description=readme(),
       classifiers=[
         'Development Status :: 4 - Beta',
-        'License :: OSI Approved :: GPLv2',
+        'License :: OSI Approved :: GPLv3',
         'Programming Language :: Python :: 2.7',
         'Topic :: Scientific/Engineering :: Bio-Informatics',
         'Topic :: Scientific/Engineering :: Medical Science Apps.',
@@ -22,7 +22,7 @@ setup(name='meningotype',
       url='https://github.com/MDU-PHL/meningotype',
       author='Jason Kwong',
       author_email='kwongj@gmail.com',
-      license='GPLv2',
+      license='GPLv3',
       #packages=['.'],
       install_requires=[
           'argparse',
