@@ -255,7 +255,7 @@ def main():
 	if args.test:
 		TESTpath = resource_filename(__name__, 'test')
 		testSEQS = [os.path.join( TESTpath, f ) for f in ['A.fna', 'B.fna', 'C.fna', 'W.fna', 'X.fna', 'Y.fna'] ]
-		msg('Running meningotype.py on test examples ... ')
+		msg('\033[94mRunning meningotype.py on test examples ... \033[0m')
 		msg('$ meningotype.py A.fna B.fna C.fna W.fna X.fna Y.fna')
 		args.fasta = testSEQS
 
