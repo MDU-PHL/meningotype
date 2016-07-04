@@ -203,8 +203,8 @@ def main():
 	parser.add_argument('--test', action='store_true', default=False, help='run test example')
 	parser.add_argument('--version', action='version', version=
 		'=====================================\n'
-		'%(prog)s v0.1-alpha\n'
-		'Updated 21-Jun-2016 by Jason Kwong\n'
+		'%(prog)s v0.1-beta\n'
+		'Updated 4-Jul-2016 by Jason Kwong\n'
 		'Dependencies: isPcr, BLAST, BioPython\n'
 		'=====================================')
 	args = parser.parse_args()
