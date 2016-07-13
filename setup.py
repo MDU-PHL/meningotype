@@ -23,7 +23,7 @@ setup(name='meningotype',
       author='Jason Kwong',
       author_email='kwongj@gmail.com',
       license='GPLv3',
-      #packages=['.'],
+      packages=['meningotype'],
       install_requires=[
           'argparse',
           'BioPython',
@@ -31,7 +31,7 @@ setup(name='meningotype',
       test_suite='nose.collector',
       tests_require=[],
       entry_points={
-          'console_scripts': ['meningotype=meningotype:main'],
+          'console_scripts': ['meningotype=meningotype.meningotype:main'],
       },
       include_package_data=True,
       zip_safe=False)

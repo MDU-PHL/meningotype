@@ -192,7 +192,7 @@ def main():
 			'\nporA and fetA typing Ref: Jolley et al, FEMS Microbiol Rev 2007; 31: 89-96\n'
 			'See also http://www.neisseria.org/nm/typing/',
 		usage='\n  %(prog)s [OPTIONS] <fasta1> <fasta2> <fasta3> ... <fastaN>')
-	parser.add_argument('fasta', metavar='FASTA', nargs='+', help='input FASTA files eg. fasta1, fasta2, fasta3 ... fastaN')
+	parser.add_argument('fasta', metavar='FASTA', nargs='*', help='input FASTA files eg. fasta1, fasta2, fasta3 ... fastaN')
 	# CSV option excluded due to syntax of porA finetype VR1,VR2
 	#parser.add_argument('--csv', action='store_true', default=False, help='output comma-separated format (CSV) rather than tab-separated')
 	parser.add_argument('--finetype', action='store_true', help='Perform porA and fetA fine typing (default=off)')
@@ -214,16 +214,16 @@ def main():
 	else:
 		DBpath = resource_filename(__name__, 'db')
 	# Path to database files
-	porA1alleles = DBpath + '/PorA_VR1.fas'
-	porA2alleles = DBpath + '/PorA_VR2.fas'
-	fetalleles = DBpath + '/FetA_VR.fas'
-	seroALLELES = DBpath + '/seroALLELES.fa'
-	allelesDB = DBpath + '/blast/seroALLELES'
-	seroPRIMERS = DBpath + '/seroPRIMERS'
-	finetypePRIMERS = DBpath + '/finetypePRIMERS'
-	porA1DB = DBpath + '/blast/porA1'
-	porA2DB = DBpath + '/blast/porA2'
-	fetDB = DBpath + '/blast/fet'
+	porA1alleles = os.path.join( DBpath, 'PorA_VR1.fas' )
+	porA2alleles = os.path.join( DBpath, 'PorA_VR2.fas' )
+	fetalleles = os.path.join( DBpath, 'FetA_VR.fas' )
+	seroALLELES = os.path.join( DBpath, 'seroALLELES.fa' )
+	allelesDB = os.path.join( DBpath, 'blast', 'seroALLELES' )
+	seroPRIMERS = os.path.join( DBpath, 'seroPRIMERS' )
+	finetypePRIMERS = os.path.join( DBpath, 'finetypePRIMERS' )
+	porA1DB = os.path.join( DBpath, 'blast', 'porA1' )
+	porA2DB = os.path.join( DBpath, 'blast', 'porA2' )
+	fetDB = os.path.join( DBpath, 'blast', 'fet' )
 
 	if args.updatedb:
 		msg('Updating "{}" ... '.format(porA1alleles))
@@ -253,9 +253,9 @@ def main():
 
 	# Test example to check meningotype works
 	if args.test:
-		TESTpath = sys.path[0] + '/test/'
-		testSEQS = [TESTpath+'A.fna', TESTpath+'B.fna', TESTpath+'C.fna', TESTpath+'W.fna', TESTpath+'X.fna', TESTpath+'Y.fna']
-		msg('Running meningotype.py on test examples ... ')
+		TESTpath = resource_filename(__name__, 'test')
+		testSEQS = [os.path.join( TESTpath, f ) for f in ['A.fna', 'B.fna', 'C.fna', 'W.fna', 'X.fna', 'Y.fna'] ]
+		msg('\033[94mRunning meningotype.py on test examples ... \033[0m')
 		msg('$ meningotype.py A.fna B.fna C.fna W.fna X.fna Y.fna')
 		args.fasta = testSEQS
 
@@ -270,6 +270,11 @@ def main():
 			err('Unable to create "printseq" folder in this directory.')
 
 	# Run meningotype
+	if len(args.fasta) == 0:
+		message = "\033[91mEither use --test or specify at least one FASTA file.\033[0m"
+		sys.stderr.write('error: {}\n'.format( message ) )
+		parser.print_help()
+		parser.exit(1)
 	print('SAMPLE_ID' + sep + 'SEROTYPE' + sep + 'PorA_TYPE' + sep + 'FetA_TYPE')
 	for f in args.fasta:
 		seroCOUNT = seroTYPE(f, seroPRIMERS, allelesDB)
