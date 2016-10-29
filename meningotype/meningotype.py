@@ -199,7 +199,7 @@ def main():
 	parser.add_argument('--db', metavar='DB', help='Specify custom directory containing allele databases for porA/fetA typing\n'
 		'Directory must contain database files "FetA_VR.fas", "PorA_VR1.fas", and "PorA_VR2.fas"')
 	parser.add_argument('--printseq', action='store_true', help='Save porA, porB and fetA allele sequences to file (default=off)')
-	parser.add_argument('--updatedb', action='store_true', default=False, help='update allele database from <www.ng-mast.net>')
+	parser.add_argument('--updatedb', action='store_true', default=False, help='update allele database from <pubmlst.org>')
 	parser.add_argument('--test', action='store_true', default=False, help='run test example')
 	parser.add_argument('--version', action='version', version=
 		'=====================================\n'
