@@ -1,2 +1,3 @@
 meningotype.egg-info/*
+venv/*
 *.pyc
