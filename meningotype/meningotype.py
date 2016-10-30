@@ -381,7 +381,7 @@ def main():
 		sys.stderr.write('error: {}\n'.format( message ) )
 		parser.print_help()
 		parser.exit(1)
-	headers = ['SAMPLE_ID', 'SEROGROUP', 'PorA', 'FetA', 'fHbp', 'NHBP', 'NadA', 'BAST']
+	headers = ['SAMPLE_ID', 'SEROGROUP', 'PorA', 'FetA', 'fHbp', 'NHBA', 'NadA', 'BAST']
 	print(sep.join(headers))
 	for f in args.fasta:
 		seroCOUNT = '/'.join(seroTYPE(f, seroPRIMERS, allelesDB))
