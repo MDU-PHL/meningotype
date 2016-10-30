@@ -54,7 +54,7 @@ If everything works, you will see the following:
 $ meningotype --test
 Running meningotype.py on test examples ... 
 $ meningotype.py A.fna B.fna C.fna W.fna X.fna Y.fna
-SAMPLE_ID	SEROGROUP	PorA	FetA	fHbp	NHBP	NadA	BAST
+SAMPLE_ID	SEROGROUP	PorA	FetA	fHbp	NHBA	NadA	BAST
 test/A.fna	A	-	-	-	-	-	-
 test/B.fna	B	-	-	-	-	-	-
 test/C.fna	C	-	-	-	-	-	-
@@ -69,7 +69,7 @@ or to check finetyping:
 $ meningotype --test --finetype
 Running meningotype.py on test examples ... 
 $ meningotype.py A.fna B.fna C.fna W.fna X.fna Y.fna
-SAMPLE_ID	SEROGROUP	PorA	FetA	fHbp	NHBP	NadA	BAST
+SAMPLE_ID	SEROGROUP	PorA	FetA	fHbp	NHBA	NadA	BAST
 test/A.fna	A	7,13-1		F1-5	-	-	-	-
 test/B.fna	B	5-2,10-1	F3-6	-	-	-	-
 test/C.fna	C	21,26-2		F1-5	-	-	-	-
@@ -84,7 +84,7 @@ or to check finetyping and Bexsero antigen sequence typing:
 $ meningotype --test --finetype --bast
 Running meningotype.py on test examples ... 
 $ meningotype.py A.fna B.fna C.fna W.fna X.fna Y.fna
-SAMPLE_ID	SEROGROUP	PorA	FetA	fHbp	NHBP	NadA	BAST
+SAMPLE_ID	SEROGROUP	PorA	FetA	fHbp	NHBA	NadA	BAST
 test/A.fna	A	7,13-1		F1-5	5	29	0	639
 test/B.fna	B	5-2,10-1	F3-6	16	20	8	150
 test/C.fna	C	21,26-2		F1-5	17	101	9	118
