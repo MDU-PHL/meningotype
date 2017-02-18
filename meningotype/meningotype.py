@@ -133,7 +133,7 @@ def seroTYPE(f, seroprimers, allelesdb):
 def finetypeBLAST(s, db):
 	ft = None
 	allele = None
-	ftBLAST = NcbiblastxCommandline(query='-', db=db, outfmt='"6 qseqid sseqid pident length qcovs gaps evalue"', seg='no', query_gencode='11')
+	ftBLAST = NcbiblastxCommandline(query='-', db=db, outfmt='"6 qseqid sseqid pident length slen gaps evalue"', seg='no', query_gencode='11')
 	stdout, stderr = ftBLAST(stdin=s.format('fasta'))
 	if stdout:
 		BLASTout = stdout.split('\n')
@@ -141,19 +141,22 @@ def finetypeBLAST(s, db):
 		for line in BLASTout:
 			if line.strip():
 				BLASTline = line.split('\t')
-				if float(BLASTline[2]) == 100 and BLASTline[5] == '0':
-					if int(BLASTline[3]) > int(lenMATCH):
-						lenMATCH = BLASTline[3]
-						ftRESULT = BLASTline[1]
-						ft = ftRESULT.split('_')[2]
-				elif not ft:
-					ft = 'new'
+				if float(BLASTline[2]) == 100 and BLASTline[5] == '0':		# check 100% match with no gaps
+					if int(BLASTline[3]) == int(BLASTline[4]):				# check length of db subject = length of match
+						if int(BLASTline[3]) > int(lenMATCH):				# select longest match
+							lenMATCH = BLASTline[3]
+							ftRESULT = BLASTline[1]
+							ft = ftRESULT.split('_')[2]
+#				elif not ft:
+#					ft = 'new'
+		if not ft:															# if amplicon detected, but no match in db, assign as new
+			ft = 'new'
 	return str(ft)
 
 def bxtypeBLAST(s, db):
 	bx = None
 	allele = None
-	bxBLAST = NcbiblastxCommandline(query='-', db=db, outfmt='"6 qseqid sseqid pident length qcovs gaps evalue"', seg='no', culling_limit='1', evalue='1e-100', query_gencode='11')
+	bxBLAST = NcbiblastxCommandline(query='-', db=db, outfmt='"6 qseqid sseqid pident length slen gaps evalue"', seg='no', culling_limit='1', evalue='1e-100', query_gencode='11')
 	stdout, stderr = bxBLAST(stdin=s.format('fasta'))
 	if stdout:
 		BLASTout = stdout.split('\n')
@@ -161,14 +164,17 @@ def bxtypeBLAST(s, db):
 		for line in BLASTout:
 			if line.strip():
 				BLASTline = line.split('\t')
-				if float(BLASTline[2]) == 100 and BLASTline[5] == '0':
-					if int(BLASTline[3]) > int(lenMATCH):
-						lenMATCH = BLASTline[3]
-						bxRESULT = BLASTline[1]
-						bx = bxRESULT.split('_')[2]
-				elif not bx:
-					bx = 'new'
-	else:
+				if float(BLASTline[2]) == 100 and BLASTline[5] == '0':		# check 100% match with no gaps
+					if int(BLASTline[3]) == int(BLASTline[4]):				# check length of db subject = length of match
+						if int(BLASTline[3]) > int(lenMATCH):				# select longest match
+							lenMATCH = BLASTline[3]
+							bxRESULT = BLASTline[1]
+							bx = bxRESULT.split('_')[2]
+#				elif not bx:
+#					bx = 'new'
+		if not bx:															# if amplicon detected, but no match in db, assign as new
+			bx = 'new'
+	else:																	# if no amplicon detected, assign as 0
 		bx = '0'
 	return str(bx)
 
@@ -272,8 +278,8 @@ def main():
 	parser.add_argument('--test', action='store_true', default=False, help='run test example')
 	parser.add_argument('--version', action='version', version=
 		'=====================================\n'
-		'%(prog)s v0.2-beta\n'
-		'Updated 31-Oct-2016 by Jason Kwong\n'
+		'%(prog)s v0.3-beta\n'
+		'Updated 18-Feb-2017 by Jason Kwong\n'
 		'Dependencies: isPcr, BLAST+, BioPython\n'
 		'=====================================')
 	args = parser.parse_args()
