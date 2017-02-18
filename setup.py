@@ -7,7 +7,7 @@ def readme():
 
 
 setup(name='meningotype',
-      version='v0.1-beta',
+      version='v0.3-beta',
       description='In silico serotyping and finetyping (porA and fetA) of Neisseria meningitidis',
       long_description=readme(),
       classifiers=[
