@@ -127,7 +127,7 @@ def seroTYPE(f, seroprimers, allelesdb):
 			expLEN = int(alleleSIZE[sero])
 			if ampLEN > (expLEN-6) and ampLEN < (expLEN+6):
 				if sero == 'W' or sero == 'Y':
-					seroYWZ(f)
+					seroYW(f)
 					sero = seroYW(f)
 				seroCOUNT.append(sero)
 		alleleSEQ.close()
