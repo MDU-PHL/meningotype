@@ -36,6 +36,7 @@ BASTURL = 'http://pubmlst.org/perl/bigsdb/bigsdb.pl?db=pubmlst_neisseria_seqdef'
 # allele sizes and serotype dictionary
 alleleSIZE = {'A':92, 'B':169, 'C':74, 'W':129, 'X':65, 'Y':146}
 seroDICT = {'sacB':'A', 'synD':'B', 'synE':'C', 'synG':'W', 'xcbB':'X', 'synF':'Y'}
+ywPATH = resource_filename(__name__, 'yw.py')
 
 porASEQS = []
 fetASEQS = []
@@ -107,13 +108,12 @@ def seroTYPE(f, seroprimers, allelesdb):
 		lenMATCH = 0
 		line = stdout.split('\n')[0]
 		amp = line.split('\t')
-#		ampID = amp[0]
-#		ampPERC = amp[1]
-#		ampLEN = int(amp[2])
 		sero = amp[0]		# Currently only takes top/first BLAST hit
 		if not sero:
 			seroCOUNT.append('-')
 		else:
+			if sero == 'W' or sero == 'Y':
+				sero = seroYW(f)
 			seroCOUNT.append(sero)
 	else:
 		alleleSEQ = StringIO.StringIO()
@@ -126,9 +126,20 @@ def seroTYPE(f, seroprimers, allelesdb):
 			sero = seroDICT[ampID]
 			expLEN = int(alleleSIZE[sero])
 			if ampLEN > (expLEN-6) and ampLEN < (expLEN+6):
+				if sero == 'W' or sero == 'Y':
+					seroYWZ(f)
+					sero = seroYW(f)
 				seroCOUNT.append(sero)
 		alleleSEQ.close()
 	return seroCOUNT
+
+def seroYW(f):
+# Need to work out how to save stdout to variable while suppressing output?
+#	import yw
+	ywPROC = subprocess.Popen([ywPATH, f], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+	ywTYPE = ywPROC.communicate()[0]
+	yw = ywTYPE.split('\t')[1]
+	return yw
 
 def finetypeBLAST(s, db):
 	ft = None
@@ -278,8 +289,8 @@ def main():
 	parser.add_argument('--test', action='store_true', default=False, help='run test example')
 	parser.add_argument('--version', action='version', version=
 		'=====================================\n'
-		'%(prog)s v0.3-beta\n'
-		'Updated 18-Feb-2017 by Jason Kwong\n'
+		'%(prog)s v0.4-beta\n'
+		'Updated 20-Feb-2017 by Jason Kwong\n'
 		'Dependencies: isPcr, BLAST+, BioPython\n'
 		'=====================================')
 	args = parser.parse_args()
@@ -288,6 +299,7 @@ def main():
 		DBpath = str(args.db).rstrip('/')
 	else:
 		DBpath = resource_filename(__name__, 'db')
+
 	# Path to database files
 	porA1alleles = os.path.join( DBpath, 'PorA_VR1.fas' )
 	porA2alleles = os.path.join( DBpath, 'PorA_VR2.fas' )
