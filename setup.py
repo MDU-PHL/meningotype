@@ -7,7 +7,7 @@ def readme():
 
 
 setup(name='meningotype',
-      version='v0.4-beta',
+      version='v0.5-beta',
       description='In silico serotyping and finetyping (porA and fetA) of Neisseria meningitidis',
       long_description=readme(),
       classifiers=[
@@ -31,6 +31,7 @@ setup(name='meningotype',
       test_suite='nose.collector',
       tests_require=[],
 	  scripts=['meningotype/menwy.py'],
+	  console_scripts=['meningotype/menwy.py'],
       entry_points={
           'console_scripts': ['meningotype=meningotype.meningotype:main'],
       },

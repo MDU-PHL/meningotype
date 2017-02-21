@@ -55,25 +55,13 @@ def seqBLAST(f):
 		blast_slen = 0
 	return synG_SEQ, synG_start, blast_slen
 
-# Usage
-parser = argparse.ArgumentParser(
-	formatter_class=RawTextHelpFormatter,
-	description='Checks for dual W+Y antigenic specificity of Neisseria meningitidis',
-	usage='\n  %(prog)s FASTA-1 FASTA-2 ... FASTA-N')
-parser.add_argument('fasta', metavar='FASTA', nargs='+', help='FASTA file to search (required)')
-parser.add_argument('--version', action='version', version=
-	'=====================================\n'
-	'%(prog)s v0.1\n'
-	'Updated 19-Feb-2017 by Jason Kwong\n'
-	'Dependencies: Python 2.x, BioPython, BLAST\n'
-	'=====================================')
-args = parser.parse_args()
-
+# Set globals
 DBpath = resource_filename(__name__, 'db')
 blastdb = os.path.join(DBpath, 'blast', 'synG')
 seroDICT = {'P':'W', 'G':'Y', 'S':'W/Y'}
 
-for f in args.fasta:
+# MenWY
+def menwy(f):
 	serogroup = '-'
 	EX7E = '-'
 	synG_RESULT = seqBLAST(f)
@@ -85,3 +73,25 @@ for f in args.fasta:
 		EX7E = str(EX7E_SEQ.translate())
 		serogroup = seroDICT[EX7E[3]]
 	print('\t'.join([f, serogroup, EX7E]))
+
+def main():
+	# Usage
+	parser = argparse.ArgumentParser(
+		formatter_class=RawTextHelpFormatter,
+		description='Checks for dual W+Y antigenic specificity of Neisseria meningitidis',
+		usage='\n  %(prog)s FASTA-1 FASTA-2 ... FASTA-N')
+	parser.add_argument('fasta', metavar='FASTA', nargs='+', help='FASTA file to search (required)')
+	parser.add_argument('--version', action='version', version=
+		'=====================================\n'
+		'%(prog)s v0.1\n'
+		'Updated 19-Feb-2017 by Jason Kwong\n'
+		'Dependencies: Python 2.x, BioPython, BLAST\n'
+		'=====================================')
+	args = parser.parse_args()
+	
+	# Main
+	for f in args.fasta:
+		menwy(f)
+	
+if __name__ == "__main__":
+	main()

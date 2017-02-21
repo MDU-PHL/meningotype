@@ -21,17 +21,27 @@ from Bio.SeqRecord import SeqRecord
 from Bio.Blast.Applications import NcbiblastnCommandline
 from Bio.Blast.Applications import NcbiblastxCommandline
 from pkg_resources import resource_string, resource_filename
+import menwy
 
 ###### Script globals ##########################################################
 
-# URLs to update database files
-porA1URL = 'http://pubmlst.org/perl/bigsdb/bigsdb.pl?db=pubmlst_neisseria_seqdef&page=downloadAlleles&locus=PorA_VR1'
-porA2URL = 'http://pubmlst.org/perl/bigsdb/bigsdb.pl?db=pubmlst_neisseria_seqdef&page=downloadAlleles&locus=PorA_VR2'
-fetAURL = 'http://pubmlst.org/perl/bigsdb/bigsdb.pl?db=pubmlst_neisseria_seqdef&page=downloadAlleles&locus=FetA_VR'
-fHbpURL = 'http://pubmlst.org/perl/bigsdb/bigsdb.pl?db=pubmlst_neisseria_seqdef&page=downloadAlleles&locus=fHbp_peptide'
-NHBAURL = 'http://pubmlst.org/perl/bigsdb/bigsdb.pl?db=pubmlst_neisseria_seqdef&page=downloadAlleles&locus=NHBA_peptide'
-NadAURL = 'http://pubmlst.org/perl/bigsdb/bigsdb.pl?db=pubmlst_neisseria_seqdef&page=downloadAlleles&locus=NadA_peptide'
-BASTURL = 'http://pubmlst.org/perl/bigsdb/bigsdb.pl?db=pubmlst_neisseria_seqdef'
+# URLs to update database files (OLD)
+# porA1URL = 'http://pubmlst.org/perl/bigsdb/bigsdb.pl?db=pubmlst_neisseria_seqdef&page=downloadAlleles&locus=PorA_VR1'
+# porA2URL = 'http://pubmlst.org/perl/bigsdb/bigsdb.pl?db=pubmlst_neisseria_seqdef&page=downloadAlleles&locus=PorA_VR2'
+# fetAURL = 'http://pubmlst.org/perl/bigsdb/bigsdb.pl?db=pubmlst_neisseria_seqdef&page=downloadAlleles&locus=FetA_VR'
+# fHbpURL = 'http://pubmlst.org/perl/bigsdb/bigsdb.pl?db=pubmlst_neisseria_seqdef&page=downloadAlleles&locus=fHbp_peptide'
+# NHBAURL = 'http://pubmlst.org/perl/bigsdb/bigsdb.pl?db=pubmlst_neisseria_seqdef&page=downloadAlleles&locus=NHBA_peptide'
+# NadAURL = 'http://pubmlst.org/perl/bigsdb/bigsdb.pl?db=pubmlst_neisseria_seqdef&page=downloadAlleles&locus=NadA_peptide'
+# BASTURL = 'http://pubmlst.org/perl/bigsdb/bigsdb.pl?db=pubmlst_neisseria_seqdef'
+
+# URLs to update database files (REST API)
+porA1URL = 'http://rest.pubmlst.org/db/pubmlst_neisseria_seqdef/loci/PorA_VR1/alleles_fasta'
+porA2URL = 'http://rest.pubmlst.org/db/pubmlst_neisseria_seqdef/loci/PorA_VR2/alleles_fasta'
+fetAURL = 'http://rest.pubmlst.org/db/pubmlst_neisseria_seqdef/loci/FetA_VR/alleles_fasta'
+fHbpURL = 'http://rest.pubmlst.org/db/pubmlst_neisseria_seqdef/loci/fHbp_peptide/alleles_fasta'
+NHBAURL = 'http://rest.pubmlst.org/db/pubmlst_neisseria_seqdef/loci/NHBA_peptide/alleles_fasta'
+NadAURL = 'http://rest.pubmlst.org/db/pubmlst_neisseria_seqdef/loci/NadA_peptide/alleles_fasta'
+BASTURL = 'http://rest.pubmlst.org/db/pubmlst_neisseria_seqdef/schemes/53/profiles_csv'
 
 # allele sizes and serotype dictionary
 alleleSIZE = {'A':92, 'B':169, 'C':74, 'W':129, 'X':65, 'Y':146}
@@ -62,12 +72,6 @@ def msg(*args, **kwargs):
 def err(*args, **kwargs):
 	msg(*args, **kwargs)
 	sys.exit(1);
-
-# Format database
-def format(file):
-	sed_all(file, '^.*<textarea name="concatenation".*?>', '')
-	sed_all(file, '<\/textarea>.*$', '')
-	sed_inplace(file, '&gt;', '>')
 
 ############### Database functions #############################################
 
@@ -133,10 +137,11 @@ def seroTYPE(f, seroprimers, allelesdb):
 	return seroCOUNT
 
 def seroWY(f, sero):
-# Need to work out how to save stdout to variable while suppressing output?
-#	import wy
-	wyPROC = subprocess.Popen([wyPATH, f], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-	wyTYPE = wyPROC.communicate()[0]
+	stdout_ = sys.stdout
+	sys.stdout = StringIO.StringIO()
+	menwy.menwy(f)
+	wyTYPE = sys.stdout.getvalue()
+	sys.stdout = stdout_
 	wy = wyTYPE.split('\t')[1]
 	if wy == '-':
 		return sero
@@ -285,14 +290,14 @@ def main():
 	parser.add_argument('--bast', action='store_true', help='perform Bexsero antigen sequence typing (BAST) (default=off)')
 	parser.add_argument('--db', metavar='DB', help='specify custom directory containing allele databases for porA/fetA typing\n'
 		'directory must contain database files: "FetA_VR.fas", "PorA_VR1.fas", "PorA_VR2.fas"\n'
-		'for Bexsero typing: "fHbp_peptide.fas", "NHBA_peptide.fas", "NadA_peptide.fas"')
-	parser.add_argument('--printseq', action='store_true', help='save porA, porB and fetA allele sequences to file (default=off)')
+		'for Bexsero typing: "fHbp_peptide.fas", "NHBA_peptide.fas", "NadA_peptide.fas", "BASTalleles.txt"')
+	parser.add_argument('--printseq', action='store_true', help='save porA/fetA or BAST allele sequences to file (default=off)')
 	parser.add_argument('--updatedb', action='store_true', default=False, help='update allele database from <pubmlst.org>')
 	parser.add_argument('--test', action='store_true', default=False, help='run test example')
 	parser.add_argument('--version', action='version', version=
 		'=====================================\n'
-		'%(prog)s v0.4-beta\n'
-		'Updated 21-Feb-2017 by Jason Kwong\n'
+		'%(prog)s v0.5-beta\n'
+		'Updated 22-Feb-2017 by Jason Kwong\n'
 		'Dependencies: isPcr, BLAST+, BioPython\n'
 		'=====================================')
 	args = parser.parse_args()
@@ -325,21 +330,26 @@ def main():
 	NadADB = os.path.join( DBpath, 'blast', 'NadA_peptide' )
  
 	if args.updatedb:
-		msg('Updating "{}" ... '.format(porA1alleles))
-		update_db(porA1alleles, porA1URL)
-		msg('Updating "{}" ... '.format(porA2alleles))
-		update_db(porA2alleles, porA2URL)
-		msg('Updating "{}" ... '.format(fetalleles))
-		update_db(fetalleles, fetAURL)
-		msg('Updating "{}" ... '.format(fHbpalleles))
-		update_db(fHbpalleles, fHbpURL)
-		msg('Updating "{}" ... '.format(NHBAalleles))
-		update_db(NHBAalleles, NHBAURL)
-		msg('Updating "{}" ... '.format(NadAalleles))
-		update_db(NadAalleles, NadAURL)
-#		msg('Updating "{}" ... '.format(BASTalleles))
-#		update_db(BASTalleles, BASTURL)
-		msg('Done.')
+		try:
+			msg('Updating "{}" ... '.format(porA1alleles))
+			update_db(porA1alleles, porA1URL)
+			msg('Updating "{}" ... '.format(porA2alleles))
+			update_db(porA2alleles, porA2URL)
+			msg('Updating "{}" ... '.format(fetalleles))
+			update_db(fetalleles, fetAURL)
+			msg('Updating "{}" ... '.format(fHbpalleles))
+			update_db(fHbpalleles, fHbpURL)
+			msg('Updating "{}" ... '.format(NHBAalleles))
+			update_db(NHBAalleles, NHBAURL)
+			msg('Updating "{}" ... '.format(NadAalleles))
+			update_db(NadAalleles, NadAURL)
+			msg('Updating "{}" ... '.format(BASTalleles))
+			update_db(BASTalleles, BASTURL)
+			msg('Done.')
+		except IOError:
+			err('ERROR: Unable to update DB at "{}".\nCheck DB directory permissions and connection to http://pubmlst.org.'.format(DBpath))
+		except HTTPError:
+			err('ERROR: Unable to update DB at "{}". Check connection to http://pubmlst.org.'.format(DBpath))
 		sys.exit(0)
 
 	if not os.path.exists(DBpath):
@@ -389,11 +399,11 @@ def main():
 	if args.printseq:
 		try:
 			if not os.path.exists('printseq'):
-			    os.makedirs('printseq')
+				os.makedirs('printseq')
 			else:
-				err('"printseq" folder already exists in this directory.')
-		except:
-			err('Unable to create "printseq" folder in this directory.')
+				err('ERROR: "printseq" folder already exists in this directory.')
+		except OSError:
+			err('ERROR: Unable to create "printseq" folder in this directory.')
 
 	# Run meningotype
 	if len(args.fasta) == 0:
@@ -430,16 +440,22 @@ def main():
 
 	# Print allele sequences to file
 	if args.printseq:
-		with open('printseq/porA_seqs.fasta', 'w') as output:
-			SeqIO.write(porASEQS, output, 'fasta')
-		with open('printseq/fetA_seqs.fasta', 'w') as output:
-			SeqIO.write(fetASEQS, output, 'fasta')
-		with open('printseq/fHbp_seqs.fasta', 'w') as output:
-			SeqIO.write(fHbpSEQS, output, 'fasta')
-		with open('printseq/NHBA_seqs.fasta', 'w') as output:
-			SeqIO.write(NHBASEQS, output, 'fasta')
-		with open('printseq/NadA_seqs.fasta', 'w') as output:
-			SeqIO.write(NadASEQS, output, 'fasta')
+		if porASEQS:
+			with open('printseq/porA_seqs.fasta', 'w') as output:
+				SeqIO.write(porASEQS, output, 'fasta')
+		if fetASEQS:
+			with open('printseq/fetA_seqs.fasta', 'w') as output:
+				SeqIO.write(fetASEQS, output, 'fasta')
+		if fHbpSEQS:
+			with open('printseq/fHbp_seqs.fasta', 'w') as output:
+				SeqIO.write(fHbpSEQS, output, 'fasta')
+		if NHBASEQS:
+			with open('printseq/NHBA_seqs.fasta', 'w') as output:
+				SeqIO.write(NHBASEQS, output, 'fasta')
+		if NadASEQS:
+			with open('printseq/NadA_seqs.fasta', 'w') as output:
+				SeqIO.write(NadASEQS, output, 'fasta')
+		msg('Done. Allele sequences saved to "printseq" folder.')
 
 	sys.exit(0)
 
