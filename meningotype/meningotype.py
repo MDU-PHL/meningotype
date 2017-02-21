@@ -36,7 +36,7 @@ BASTURL = 'http://pubmlst.org/perl/bigsdb/bigsdb.pl?db=pubmlst_neisseria_seqdef'
 # allele sizes and serotype dictionary
 alleleSIZE = {'A':92, 'B':169, 'C':74, 'W':129, 'X':65, 'Y':146}
 seroDICT = {'sacB':'A', 'synD':'B', 'synE':'C', 'synG':'W', 'xcbB':'X', 'synF':'Y'}
-ywPATH = resource_filename(__name__, 'yw.py')
+wyPATH = resource_filename(__name__, 'menwy.py')
 
 porASEQS = []
 fetASEQS = []
@@ -113,7 +113,7 @@ def seroTYPE(f, seroprimers, allelesdb):
 			seroCOUNT.append('-')
 		else:
 			if sero == 'W' or sero == 'Y':
-				sero = seroYW(f)
+				sero = seroWY(f)
 			seroCOUNT.append(sero)
 	else:
 		alleleSEQ = StringIO.StringIO()
@@ -127,19 +127,19 @@ def seroTYPE(f, seroprimers, allelesdb):
 			expLEN = int(alleleSIZE[sero])
 			if ampLEN > (expLEN-6) and ampLEN < (expLEN+6):
 				if sero == 'W' or sero == 'Y':
-					seroYW(f)
-					sero = seroYW(f)
+					seroWY(f)
+					sero = seroWY(f)
 				seroCOUNT.append(sero)
 		alleleSEQ.close()
 	return seroCOUNT
 
-def seroYW(f):
+def seroWY(f):
 # Need to work out how to save stdout to variable while suppressing output?
-#	import yw
-	ywPROC = subprocess.Popen([ywPATH, f], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-	ywTYPE = ywPROC.communicate()[0]
-	yw = ywTYPE.split('\t')[1]
-	return yw
+#	import wy
+	wyPROC = subprocess.Popen([wyPATH, f], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+	wyTYPE = wyPROC.communicate()[0]
+	wy = wyTYPE.split('\t')[1]
+	return wy
 
 def finetypeBLAST(s, db):
 	ft = None
