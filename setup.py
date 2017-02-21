@@ -32,7 +32,7 @@ setup(name='meningotype',
       tests_require=[],
       entry_points={
           'console_scripts': ['meningotype=meningotype.meningotype:main'],
-          'console_scripts': ['meningotype=meningotype.yw:main'],
+          'console_scripts': ['yw=meningotype.yw:main'],
       },
       include_package_data=True,
       zip_safe=False)
