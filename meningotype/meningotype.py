@@ -113,7 +113,7 @@ def seroTYPE(f, seroprimers, allelesdb):
 			seroCOUNT.append('-')
 		else:
 			if sero == 'W' or sero == 'Y':
-				sero = seroWY(f)
+				sero = seroWY(f, sero)
 			seroCOUNT.append(sero)
 	else:
 		alleleSEQ = StringIO.StringIO()
@@ -127,19 +127,21 @@ def seroTYPE(f, seroprimers, allelesdb):
 			expLEN = int(alleleSIZE[sero])
 			if ampLEN > (expLEN-6) and ampLEN < (expLEN+6):
 				if sero == 'W' or sero == 'Y':
-					seroWY(f)
-					sero = seroWY(f)
+					sero = seroWY(f, sero)
 				seroCOUNT.append(sero)
 		alleleSEQ.close()
 	return seroCOUNT
 
-def seroWY(f):
+def seroWY(f, sero):
 # Need to work out how to save stdout to variable while suppressing output?
 #	import wy
 	wyPROC = subprocess.Popen([wyPATH, f], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 	wyTYPE = wyPROC.communicate()[0]
 	wy = wyTYPE.split('\t')[1]
-	return wy
+	if wy == '-':
+		return sero
+	else:
+		return wy
 
 def finetypeBLAST(s, db):
 	ft = None
@@ -290,7 +292,7 @@ def main():
 	parser.add_argument('--version', action='version', version=
 		'=====================================\n'
 		'%(prog)s v0.4-beta\n'
-		'Updated 20-Feb-2017 by Jason Kwong\n'
+		'Updated 21-Feb-2017 by Jason Kwong\n'
 		'Dependencies: isPcr, BLAST+, BioPython\n'
 		'=====================================')
 	args = parser.parse_args()
