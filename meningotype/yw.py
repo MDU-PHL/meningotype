@@ -69,6 +69,7 @@ args = parser.parse_args()
 DBpath = resource_filename(__name__, 'db')
 blastdb = os.path.join(DBpath, 'blast', 'synG')
 seroDICT = {'P':'W', 'G':'Y', 'S':'W/Y'}
+print(blastdb)
 
 for f in args.fasta:
 	serogroup = '-'
