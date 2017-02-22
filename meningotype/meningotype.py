@@ -22,7 +22,7 @@ from Bio.Blast.Applications import NcbiblastnCommandline, NcbiblastxCommandline
 from pkg_resources import resource_string, resource_filename
 
 # Import local modules
-import nmen, menwy, ctrA, finetype
+import nmen, menwy, ctrA, porB
 
 ###### Script globals ##########################################################
 
@@ -39,10 +39,12 @@ import nmen, menwy, ctrA, finetype
 porA1URL = 'http://rest.pubmlst.org/db/pubmlst_neisseria_seqdef/loci/PorA_VR1/alleles_fasta'
 porA2URL = 'http://rest.pubmlst.org/db/pubmlst_neisseria_seqdef/loci/PorA_VR2/alleles_fasta'
 fetAURL = 'http://rest.pubmlst.org/db/pubmlst_neisseria_seqdef/loci/FetA_VR/alleles_fasta'
+porBURL = 'http://rest.pubmlst.org/db/pubmlst_neisseria_seqdef/loci/NEIS2020/alleles_fasta'
 fHbpURL = 'http://rest.pubmlst.org/db/pubmlst_neisseria_seqdef/loci/fHbp_peptide/alleles_fasta'
 NHBAURL = 'http://rest.pubmlst.org/db/pubmlst_neisseria_seqdef/loci/NHBA_peptide/alleles_fasta'
 NadAURL = 'http://rest.pubmlst.org/db/pubmlst_neisseria_seqdef/loci/NadA_peptide/alleles_fasta'
 BASTURL = 'http://rest.pubmlst.org/db/pubmlst_neisseria_seqdef/schemes/53/profiles_csv'
+
 
 # allele sizes and serotype dictionary
 alleleSIZE = {'A':92, 'B':169, 'C':74, 'W':129, 'X':65, 'Y':146}
@@ -50,12 +52,14 @@ seroDICT = {'sacB':'A', 'synD':'B', 'synE':'C', 'synG':'W', 'xcbB':'X', 'synF':'
 
 porASEQS = []
 fetASEQS = []
+porBSEQS = []
 fHbpSEQS = []
 NHBASEQS = []
 NadASEQS = []
 sero = None
 porA = None
 fet = None
+porB = None
 fHbp = None
 NHBA = None
 NadA = None
@@ -268,6 +272,12 @@ def bxTYPE(f, bxPRIMERS, fHbpDB, NHBADB, NadADB):
 		NadACOUNT.append('0')
 	return set(fHbpCOUNT), set(NHBACOUNT), set(NadACOUNT)
 
+def porBTYPE(f, blastdb):
+	porB_result = porB.porBBLAST(f, blastdb)
+	porBCOUNT = porB_result[2]
+	porBSEQS.append(porB_result[5])
+	return porBCOUNT
+
 ########## Meningotype main ####################################################
 
 def main():
@@ -283,6 +293,7 @@ def main():
 	# CSV option excluded due to syntax of porA finetype VR1,VR2
 	#parser.add_argument('--csv', action='store_true', default=False, help='output comma-separated format (CSV) rather than tab-separated')
 	parser.add_argument('--finetype', action='store_true', help='perform porA and fetA fine typing (default=off)')
+	parser.add_argument('--porB', action='store_true', help='perform porB sequence typing (NEIS2020) (default=off)')
 	parser.add_argument('--bast', action='store_true', help='perform Bexsero antigen sequence typing (BAST) (default=off)')
 	parser.add_argument('--db', metavar='DB', help='specify custom directory containing allele databases for porA/fetA typing\n'
 		'directory must contain database files: "FetA_VR.fas", "PorA_VR1.fas", "PorA_VR2.fas"\n'
@@ -307,6 +318,7 @@ def main():
 	porA1alleles = os.path.join( DBpath, 'PorA_VR1.fas' )
 	porA2alleles = os.path.join( DBpath, 'PorA_VR2.fas' )
 	fetalleles = os.path.join( DBpath, 'FetA_VR.fas' )
+	porBalleles = os.path.join( DBpath, 'PorB.fas' )
 	fHbpalleles = os.path.join( DBpath, 'fHbp_peptide.fas' )
 	NHBAalleles = os.path.join( DBpath, 'NHBA_peptide.fas' )
 	NadAalleles = os.path.join( DBpath, 'NadA_peptide.fas' )
@@ -324,7 +336,8 @@ def main():
 	fHbpDB = os.path.join( DBpath, 'blast', 'fHbp_peptide' )
 	NHBADB = os.path.join( DBpath, 'blast', 'NHBA_peptide' )
 	NadADB = os.path.join( DBpath, 'blast', 'NadA_peptide' )
- 
+	porBDB = os.path.join( DBpath, 'blast', 'porB' )
+
 	if args.updatedb:
 		try:
 			msg('Updating "{}" ... '.format(porA1alleles))
@@ -333,6 +346,8 @@ def main():
 			update_db(porA2alleles, porA2URL)
 			msg('Updating "{}" ... '.format(fetalleles))
 			update_db(fetalleles, fetAURL)
+			msg('Updating "{}" ... '.format(porBalleles))
+			update_db(porBalleles, porBURL)
 			msg('Updating "{}" ... '.format(fHbpalleles))
 			update_db(fHbpalleles, fHbpURL)
 			msg('Updating "{}" ... '.format(NHBAalleles))
@@ -357,12 +372,14 @@ def main():
 	check_db_files(porA1alleles, porA1URL)
 	check_db_files(porA2alleles, porA2URL)
 	check_db_files(fetalleles, fetAURL)
+	check_db_files(porBalleles, porBURL)
 
 	# Setup BLASTDB
 	makeblastDB(allelesDB, seroALLELES, 'nucl')
 	makeblastDB(porA1DB, porA1alleles, 'prot')
 	makeblastDB(porA2DB, porA2alleles, 'prot')
 	makeblastDB(fetDB, fetalleles, 'prot')
+	makeblastDB(porBDB, porBalleles, 'nucl')
 
 	if args.bast:
 		check_primer_files(bxPRIMERS)
@@ -409,12 +426,13 @@ def main():
 		sys.stderr.write('error: {}\n'.format( message ) )
 		parser.print_help()
 		parser.exit(1)
-	headers = ['SAMPLE_ID', 'SEROGROUP', 'ctrA', 'PorA', 'FetA', 'fHbp', 'NHBA', 'NadA', 'BAST']
+	headers = ['SAMPLE_ID', 'SEROGROUP', 'ctrA', 'PorA', 'FetA', 'PorB', 'fHbp', 'NHBA', 'NadA', 'BAST']
 	print(sep.join(headers))
 	for f in args.fasta:
 		# Defaults
 		porACOUNT = '-'
 		fetACOUNT = '-'
+		porBCOUNT = '-'
 		fHbpCOUNT = '-'
 		NHBACOUNT = '-'
 		NadACOUNT = '-'
@@ -429,6 +447,7 @@ def main():
 			bxRESULTS = bxTYPE(f, bxPRIMERS, fHbpDB, NHBADB, NadADB)
 			porACOUNT = '/'.join(ftRESULTS[0])
 			fetACOUNT = '/'.join(ftRESULTS[1])
+			porBCOUNT = porBTYPE(f, porBDB)
 			fHbpCOUNT = '/'.join(bxRESULTS[0])
 			NHBACOUNT = '/'.join(bxRESULTS[1])
 			NadACOUNT = '/'.join(bxRESULTS[2])
@@ -438,9 +457,12 @@ def main():
 		# Finetyping (porA, fetA, porB)
 		elif args.finetype:
 			ftRESULTS = fineTYPE(f, finetypePRIMERS, porA1DB, porA2DB, fetDB)
+			porBCOUNT = porBTYPE(f, porBDB)
 			porACOUNT = '/'.join(ftRESULTS[0])
 			fetACOUNT = '/'.join(ftRESULTS[1])
-		results = [f, seroCOUNT, ctrACOUNT, porACOUNT, fetACOUNT, fHbpCOUNT, NHBACOUNT, NadACOUNT, bxtype]
+		elif args.porB:
+			porBCOUNT = porBTYPE(f, porBDB)
+		results = [f, seroCOUNT, ctrACOUNT, porACOUNT, fetACOUNT, porBCOUNT, fHbpCOUNT, NHBACOUNT, NadACOUNT, bxtype]
 		print(sep.join(results))
 
 	# Print allele sequences to file
@@ -451,6 +473,9 @@ def main():
 		if fetASEQS:
 			with open('printseq/fetA_seqs.fasta', 'w') as output:
 				SeqIO.write(fetASEQS, output, 'fasta')
+		if porBSEQS:
+			with open('printseq/porB_seqs.fasta', 'w') as output:
+				SeqIO.write(porBSEQS, output, 'fasta')
 		if fHbpSEQS:
 			with open('printseq/fHbp_seqs.fasta', 'w') as output:
 				SeqIO.write(fHbpSEQS, output, 'fasta')

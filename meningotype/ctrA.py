@@ -67,6 +67,7 @@ def main():
 		description='Checks for ctrA gene in Neisseria meningitidis',
 		usage='\n  %(prog)s FASTA-1 FASTA-2 ... FASTA-N')
 	parser.add_argument('fasta', metavar='FASTA', nargs='+', help='FASTA file to search (required)')
+	parser.add_argument('--db', metavar='DB', help='specify custom directory containing allele databases')
 	parser.add_argument('--version', action='version', version=
 		'=====================================\n'
 		'%(prog)s v0.1\n'

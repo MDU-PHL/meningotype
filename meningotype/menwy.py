@@ -19,6 +19,10 @@ import nmen
 
 # BLAST
 def seqBLAST(f):
+	# Set globals
+	DBpath = resource_filename(__name__, 'db')
+	blastdb = os.path.join(DBpath, 'blast', 'synG')
+	# BLAST
 	fBLAST = NcbiblastnCommandline(query=f, db=blastdb, outfmt="'6 qseqid sstrand qstart qend sstart send slen'", dust='no', culling_limit=1)
 	stdout, stderr = fBLAST()
 	blastOUT = stdout.split('\t')
@@ -45,13 +49,9 @@ def seqBLAST(f):
 		blast_slen = 0
 	return synG_SEQ, synG_start, blast_slen
 
-# Set globals
-DBpath = resource_filename(__name__, 'db')
-blastdb = os.path.join(DBpath, 'blast', 'synG')
-seroDICT = {'P':'W', 'G':'Y', 'S':'W/Y'}
-
 # MenWY
 def menwy(f, p):
+	seroDICT = {'P':'W', 'G':'Y', 'S':'W/Y'}
 	serogroup = '-'
 	EX7E = '-'
 	synG_RESULT = seqBLAST(f)
@@ -82,7 +82,7 @@ def main():
 		'Dependencies: Python 2.x, BioPython, BLAST\n'
 		'=====================================')
 	args = parser.parse_args()
-	
+
 	# Main
 	print('\t'.join(['SAMPLE_ID', 'W/Y', 'EX7E_MOTIF']))
 	for f in args.fasta:
