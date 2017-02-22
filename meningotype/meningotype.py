@@ -23,12 +23,9 @@ from Bio.Blast.Applications import NcbiblastxCommandline
 from pkg_resources import resource_string, resource_filename
 
 # Import local modules
-scripts = resource_filename(__name__, 'scripts')
-if scripts not in sys.path:
-	sys.path.insert(0, scripts)
-import nmen
-import menwy
-import ctrA
+from scripts import nmen
+import scripts.menwy as menwy
+import scripts.ctrA as ctrA
 
 ###### Script globals ##########################################################
 
