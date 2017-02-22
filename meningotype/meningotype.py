@@ -23,6 +23,7 @@ from Bio.Blast.Applications import NcbiblastxCommandline
 from pkg_resources import resource_string, resource_filename
 
 # Import local modules
+scripts = resource_filename(__name__, 'scripts')
 from scripts import nmen
 from scripts import menwy
 from scripts import ctrA
