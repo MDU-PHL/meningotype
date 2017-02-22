@@ -30,7 +30,7 @@ setup(name='meningotype',
 	],
 	test_suite='nose.collector',
 	tests_require=[],
-	scripts=[
+	console_scripts=[
 		'meningotype/scripts/nmen.py',
 		'meningotype/scripts/ctrA.py',
 		'meningotype/scripts/menwy.py',
