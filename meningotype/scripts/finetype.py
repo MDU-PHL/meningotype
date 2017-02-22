@@ -61,7 +61,7 @@ blastdb = os.path.join(DBpath, 'blast', 'synG')
 seroDICT = {'P':'W', 'G':'Y', 'S':'W/Y'}
 
 # MenWY
-def menwy(f):
+def menwy(f, p):
 	serogroup = '-'
 	EX7E = '-'
 	synG_RESULT = seqBLAST(f)
@@ -72,7 +72,11 @@ def menwy(f):
 		EX7E_SEQ = synG_SEQ[918:945]
 		EX7E = str(EX7E_SEQ.translate())
 		serogroup = seroDICT[EX7E[3]]
-	print('\t'.join([f, serogroup, EX7E]))
+	result = '\t'.join([f, serogroup, EX7E])
+	if p:
+		print(result)
+	else:
+		return result
 
 def main():
 	# Usage
@@ -91,7 +95,7 @@ def main():
 	
 	# Main
 	for f in args.fasta:
-		menwy(f)
+		menwy(f, True)
 	
 if __name__ == "__main__":
 	main()

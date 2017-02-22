@@ -21,7 +21,11 @@ from Bio.SeqRecord import SeqRecord
 from Bio.Blast.Applications import NcbiblastnCommandline
 from Bio.Blast.Applications import NcbiblastxCommandline
 from pkg_resources import resource_string, resource_filename
-import menwy
+
+# Import local modules
+from scripts import nmen
+from scripts import menwy
+from scripts import ctrA
 
 ###### Script globals ##########################################################
 
@@ -46,7 +50,6 @@ BASTURL = 'http://rest.pubmlst.org/db/pubmlst_neisseria_seqdef/schemes/53/profil
 # allele sizes and serotype dictionary
 alleleSIZE = {'A':92, 'B':169, 'C':74, 'W':129, 'X':65, 'Y':146}
 seroDICT = {'sacB':'A', 'synD':'B', 'synE':'C', 'synG':'W', 'xcbB':'X', 'synF':'Y'}
-wyPATH = resource_filename(__name__, 'menwy.py')
 
 porASEQS = []
 fetASEQS = []
@@ -137,11 +140,7 @@ def seroTYPE(f, seroprimers, allelesdb):
 	return seroCOUNT
 
 def seroWY(f, sero):
-	stdout_ = sys.stdout
-	sys.stdout = StringIO.StringIO()
-	menwy.menwy(f)
-	wyTYPE = sys.stdout.getvalue()
-	sys.stdout = stdout_
+	wyTYPE = menwy.menwy(f, False)
 	wy = wyTYPE.split('\t')[1]
 	if wy == '-':
 		return sero
@@ -296,7 +295,7 @@ def main():
 	parser.add_argument('--test', action='store_true', default=False, help='run test example')
 	parser.add_argument('--version', action='version', version=
 		'=====================================\n'
-		'%(prog)s v0.5-beta\n'
+		'%(prog)s v0.6-beta\n'
 		'Updated 22-Feb-2017 by Jason Kwong\n'
 		'Dependencies: isPcr, BLAST+, BioPython\n'
 		'=====================================')
@@ -352,6 +351,7 @@ def main():
 			err('ERROR: Unable to update DB at "{}". Check connection to http://pubmlst.org.'.format(DBpath))
 		sys.exit(0)
 
+	# Check paths and files
 	if not os.path.exists(DBpath):
 		err('ERROR: Cannot locate "db" directory at "{}"'.format(DBpath))
 	check_primer_files(seroPRIMERS)
@@ -361,6 +361,7 @@ def main():
 	check_db_files(porA2alleles, porA2URL)
 	check_db_files(fetalleles, fetAURL)
 
+	# Setup BLASTDB
 	makeblastDB(allelesDB, seroALLELES, 'nucl')
 	makeblastDB(porA1DB, porA1alleles, 'prot')
 	makeblastDB(porA2DB, porA2alleles, 'prot')
@@ -411,10 +412,21 @@ def main():
 		sys.stderr.write('error: {}\n'.format( message ) )
 		parser.print_help()
 		parser.exit(1)
-	headers = ['SAMPLE_ID', 'SEROGROUP', 'PorA', 'FetA', 'fHbp', 'NHBA', 'NadA', 'BAST']
+	headers = ['SAMPLE_ID', 'SEROGROUP', 'ctrA', 'PorA', 'FetA', 'fHbp', 'NHBA', 'NadA', 'BAST']
 	print(sep.join(headers))
 	for f in args.fasta:
+		# Defaults
+		porACOUNT = '-'
+		fetACOUNT = '-'
+		fHbpCOUNT = '-'
+		NHBACOUNT = '-'
+		NadACOUNT = '-'
+		bxtype = '-'
+		# Standard run = serotype + ctrA
 		seroCOUNT = '/'.join(seroTYPE(f, seroPRIMERS, allelesDB))
+		ctrA_out = ctrA.ctrA_PCR(f, False, DBpath)
+		ctrACOUNT = ctrA_out.split('\t')[1]
+		# BAST
 		if args.bast:
 			ftRESULTS = fineTYPE(f, finetypePRIMERS, porA1DB, porA2DB, fetDB)
 			bxRESULTS = bxTYPE(f, bxPRIMERS, fHbpDB, NHBADB, NadADB)
@@ -426,16 +438,12 @@ def main():
 			bxallele = fHbpCOUNT + dl + NHBACOUNT + dl + NadACOUNT + dl + porACOUNT
 			if bxallele in BAST:
 				bxtype = BAST[bxallele]
-			else:
-				bxtype = '-'
-			results = [f, seroCOUNT, porACOUNT, fetACOUNT, fHbpCOUNT, NHBACOUNT, NadACOUNT, bxtype]
+		# Finetyping (porA, fetA, porB)
 		elif args.finetype:
 			ftRESULTS = fineTYPE(f, finetypePRIMERS, porA1DB, porA2DB, fetDB)
 			porACOUNT = '/'.join(ftRESULTS[0])
 			fetACOUNT = '/'.join(ftRESULTS[1])
-			results = [f, seroCOUNT, porACOUNT, fetACOUNT, '-', '-', '-', '-']
-		else:
-			results = [f, seroCOUNT, '-', '-', '-', '-', '-', '-']
+		results = [f, seroCOUNT, ctrACOUNT, porACOUNT, fetACOUNT, fHbpCOUNT, NHBACOUNT, NadACOUNT, bxtype]
 		print(sep.join(results))
 
 	# Print allele sequences to file
