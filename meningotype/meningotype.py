@@ -22,7 +22,7 @@ from Bio.Blast.Applications import NcbiblastnCommandline, NcbiblastxCommandline
 from pkg_resources import resource_string, resource_filename
 
 # Import local modules
-import nmen, menwy, ctrA, porB
+import nmen, menwy, ctrA, porB, finetype
 
 ###### Script globals ##########################################################
 
@@ -273,7 +273,7 @@ def bxTYPE(f, bxPRIMERS, fHbpDB, NHBADB, NadADB):
 	return set(fHbpCOUNT), set(NHBACOUNT), set(NadACOUNT)
 
 def porBTYPE(f, blastdb):
-	porB_result = porB.porBBLAST(f, blastdb)
+	porB_result = finetype.porBBLAST(f, blastdb)
 	porBCOUNT = porB_result[2]
 	porBSEQS.append(porB_result[5])
 	return porBCOUNT
