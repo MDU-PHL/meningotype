@@ -17,6 +17,8 @@ from Bio.Blast.Applications import NcbiblastnCommandline
 from Bio.Blast import NCBIXML
 from pkg_resources import resource_string, resource_filename
 
+# Import local modules
+
 # Standard functions
 # Log a message to stderr
 def msg(*args, **kwargs):

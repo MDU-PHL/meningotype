@@ -75,7 +75,7 @@ def main():
 		'=====================================')
 	args = parser.parse_args()
 	
-	DBpath = resource_filename(__name__, '../db')
+	DBpath = resource_filename(__name__, 'db')
 	
 	# Main
 	print('\t'.join(['SAMPLE_ID', 'PCRresult', 'BLASTresult']))

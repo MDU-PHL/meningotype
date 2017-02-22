@@ -18,14 +18,11 @@ from subprocess import Popen
 from Bio import SeqIO
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
-from Bio.Blast.Applications import NcbiblastnCommandline
-from Bio.Blast.Applications import NcbiblastxCommandline
+from Bio.Blast.Applications import NcbiblastnCommandline, NcbiblastxCommandline
 from pkg_resources import resource_string, resource_filename
 
 # Import local modules
-from scripts import nmen
-import scripts.menwy as menwy
-import scripts.ctrA as ctrA
+import nmen, menwy, ctrA, finetype
 
 ###### Script globals ##########################################################
 

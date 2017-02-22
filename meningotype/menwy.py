@@ -46,7 +46,7 @@ def seqBLAST(f):
 	return synG_SEQ, synG_start, blast_slen
 
 # Set globals
-DBpath = resource_filename(__name__, '../db')
+DBpath = resource_filename(__name__, 'db')
 blastdb = os.path.join(DBpath, 'blast', 'synG')
 seroDICT = {'P':'W', 'G':'Y', 'S':'W/Y'}
 
