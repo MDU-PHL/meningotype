@@ -34,7 +34,7 @@ cmd_subfolder = os.path.realpath(os.path.abspath(os.path.join(os.path.split(insp
 if cmd_subfolder not in sys.path:
 	sys.path.insert(0, cmd_subfolder)
 
-import nmen
+import scripts.nmen as nmen
 import menwy
 import ctrA
 
