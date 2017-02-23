@@ -148,6 +148,11 @@ def seroWY(f, sero):
 	else:
 		return wy
 
+def nm_mlst(f):
+	proc = subprocess.Popen(['mlst', '--scheme=neisseria', '--quiet', f], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+	PCRout = proc.communicate()[0]
+	return PCRout
+
 def finetypeBLAST(s, db):
 	ft = None
 	allele = None
@@ -170,6 +175,12 @@ def finetypeBLAST(s, db):
 		if not ft:															# if amplicon detected, but no match in db, assign as new
 			ft = 'new'
 	return str(ft)
+
+def porBTYPE(f, blastdb):
+	porB_result = finetype.porBBLAST(f, blastdb)
+	porBCOUNT = porB_result[2]
+	porBSEQS.append(porB_result[5])
+	return porBCOUNT
 
 def bxtypeBLAST(s, db):
 	bx = None
@@ -272,18 +283,13 @@ def bxTYPE(f, bxPRIMERS, fHbpDB, NHBADB, NadADB):
 		NadACOUNT.append('0')
 	return set(fHbpCOUNT), set(NHBACOUNT), set(NadACOUNT)
 
-def porBTYPE(f, blastdb):
-	porB_result = finetype.porBBLAST(f, blastdb)
-	porBCOUNT = porB_result[2]
-	porBSEQS.append(porB_result[5])
-	return porBCOUNT
-
 ########## Meningotype main ####################################################
 
 def main():
 	parser = argparse.ArgumentParser(
 		formatter_class=RawTextHelpFormatter,
 		description='In silico typing for Neisseria meningitidis\n'
+			'Default: Serotyping, MLST and ctrA PCR\n'
 			'\nPCR Serotyping Ref: Mothershed et al, J Clin Microbiol 2004; 42(1): 320-328\n'
 			'PorA and FetA typing Ref: Jolley et al, FEMS Microbiol Rev 2007; 31: 89-96\n'
 			'Bexsero antigen sequence typing (BAST) Ref: Brehony et al, Vaccine 2016; 34(39): 4690-4697\n'
@@ -295,6 +301,7 @@ def main():
 	parser.add_argument('--finetype', action='store_true', help='perform porA and fetA fine typing (default=off)')
 	parser.add_argument('--porB', action='store_true', help='perform porB sequence typing (NEIS2020) (default=off)')
 	parser.add_argument('--bast', action='store_true', help='perform Bexsero antigen sequence typing (BAST) (default=off)')
+	parser.add_argument('--mlst', metavar='on|off|only', default='on', help='toggles whether MLST is run or not, or the only type run')
 	parser.add_argument('--db', metavar='DB', help='specify custom directory containing allele databases for porA/fetA typing\n'
 		'directory must contain database files: "FetA_VR.fas", "PorA_VR1.fas", "PorA_VR2.fas"\n'
 		'for Bexsero typing: "fHbp_peptide.fas", "NHBA_peptide.fas", "NadA_peptide.fas", "BASTalleles.txt"')
@@ -303,9 +310,9 @@ def main():
 	parser.add_argument('--test', action='store_true', default=False, help='run test example')
 	parser.add_argument('--version', action='version', version=
 		'=====================================\n'
-		'%(prog)s v0.6-beta\n'
+		'%(prog)s v0.7-beta\n'
 		'Updated 22-Feb-2017 by Jason Kwong\n'
-		'Dependencies: isPcr, BLAST+, BioPython\n'
+		'Dependencies: isPcr, mlst, BLAST+, BioPython\n'
 		'=====================================')
 	args = parser.parse_args()
 
@@ -426,10 +433,14 @@ def main():
 		sys.stderr.write('error: {}\n'.format( message ) )
 		parser.print_help()
 		parser.exit(1)
-	headers = ['SAMPLE_ID', 'SEROGROUP', 'ctrA', 'PorA', 'FetA', 'PorB', 'fHbp', 'NHBA', 'NadA', 'BAST']
+	if args.mlst == 'only':
+		headers = ['FILE', 'SCHEME', 'ST', 'abcZ', 'adk', 'aroE', 'fumC', 'gdh', 'pdhC', 'pgm']
+	else:
+		headers = ['SAMPLE_ID', 'SEROGROUP', 'ctrA', 'MLST', 'PorA', 'FetA', 'PorB', 'fHbp', 'NHBA', 'NadA', 'BAST']
 	print(sep.join(headers))
 	for f in args.fasta:
 		# Defaults
+		mlst = '-'
 		porACOUNT = '-'
 		fetACOUNT = '-'
 		porBCOUNT = '-'
@@ -438,6 +449,13 @@ def main():
 		NadACOUNT = '-'
 		bxtype = '-'
 		# Standard run = serotype + ctrA
+		if args.mlst != 'off':
+			mlstOUT = nm_mlst(f)
+		if args.mlst == 'only':
+			print(mlstOUT.split('\n')[1])
+			continue
+		elif args.mlst == 'on':
+			mlst = mlstOUT.split('\t')[11]
 		seroCOUNT = '/'.join(seroTYPE(f, seroPRIMERS, allelesDB))
 		ctrA_out = ctrA.ctrA_PCR(f, False, DBpath)
 		ctrACOUNT = ctrA_out.split('\t')[1]
@@ -462,7 +480,7 @@ def main():
 			fetACOUNT = '/'.join(ftRESULTS[1])
 		elif args.porB:
 			porBCOUNT = porBTYPE(f, porBDB)
-		results = [f, seroCOUNT, ctrACOUNT, porACOUNT, fetACOUNT, porBCOUNT, fHbpCOUNT, NHBACOUNT, NadACOUNT, bxtype]
+		results = [f, seroCOUNT, ctrACOUNT, mlst, porACOUNT, fetACOUNT, porBCOUNT, fHbpCOUNT, NHBACOUNT, NadACOUNT, bxtype]
 		print(sep.join(results))
 
 	# Print allele sequences to file
