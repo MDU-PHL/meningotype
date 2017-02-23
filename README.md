@@ -180,8 +180,8 @@ Note that the finetyping databases and website are curated and hosted by http://
 
 ##References
 
-* Mothershed et al. J Clin Microbiol, 2004; 42(1): 320-328.
-* Jolley et al. FEMS Microbiol Rev, 2007; 31: 89-96.
-* Brehony et al. Vaccine, 2016; 34(39): 4690-4697.
-* Bambini et al. PLoS One, 2013; 8(5): e65043.
-* See also [https://pubmlst.org/neisseria/](https://pubmlst.org/neisseria/).
+* Mothershed et al. J Clin Microbiol, 2004; 42(1): 320-328.  
+* Jolley et al. FEMS Microbiol Rev, 2007; 31: 89-96.  
+* Brehony et al. Vaccine, 2016; 34(39): 4690-4697.  
+* Bambini et al. PLoS One, 2013; 8(5): e65043.  
+* See also [https://pubmlst.org/neisseria/](https://pubmlst.org/neisseria/).  
