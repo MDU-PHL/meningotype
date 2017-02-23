@@ -2,7 +2,8 @@
 
 *In silico* typing of *Neisseria meningitidis*  
 - Serotyping
-- Finetyping (*porA* and *fetA*)  
+- MLST  
+- Finetyping (*porA*, *fetA*, *porB*)  
 - Bexsero antigen sequence typing (BAST) (*fHbp*, *NHBA*, *NadA*, *PorA*)
 
 ##Authors
