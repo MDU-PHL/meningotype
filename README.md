@@ -56,12 +56,12 @@ $ meningotype.py --test
 Running meningotype.py on test examples ... 
 $ meningotype.py A.fna B.fna C.fna W.fna X.fna Y.fna
 SAMPLE_ID	SEROGROUP	ctrA	MLST	PorA	FetA	PorB	fHbp	NHBA	NadA	BAST
-/home/jasonk1/scripts/git/meningotype/meningotype/test/A.fna	A	ctrA	4	-	-	-	-	-	-	-
-/home/jasonk1/scripts/git/meningotype/meningotype/test/B.fna	B	ctrA	8	-	-	-	-	-	-	-
-/home/jasonk1/scripts/git/meningotype/meningotype/test/C.fna	C	ctrA	177	-	-	-	-	-	-	-
-/home/jasonk1/scripts/git/meningotype/meningotype/test/W.fna	W	ctrA	11	-	-	-	-	-	-	-
-/home/jasonk1/scripts/git/meningotype/meningotype/test/X.fna	X	ctrA	181	-	-	-	-	-	-	-
-/home/jasonk1/scripts/git/meningotype/meningotype/test/Y.fna	Y	ctrA	23	-	-	-	-	-	-	-
+meningotype/test/A.fna	A	ctrA	4	-	-	-	-	-	-	-
+meningotype/test/B.fna	B	ctrA	8	-	-	-	-	-	-	-
+meningotype/test/C.fna	C	ctrA	177	-	-	-	-	-	-	-
+meningotype/test/W.fna	W	ctrA	11	-	-	-	-	-	-	-
+meningotype/test/X.fna	X	ctrA	181	-	-	-	-	-	-	-
+meningotype/test/Y.fna	Y	ctrA	23	-	-	-	-	-	-	-
 ```
 
 or to check finetyping:
@@ -71,12 +71,12 @@ $ meningotype.py --test --finetype
 Running meningotype.py on test examples ... 
 $ meningotype.py A.fna B.fna C.fna W.fna X.fna Y.fna
 SAMPLE_ID	SEROGROUP	ctrA	MLST	PorA	FetA	PorB	fHbp	NHBA	NadA	BAST
-/home/jasonk1/scripts/git/meningotype/meningotype/test/A.fna	A	ctrA	4	7,13-1		F1-5	NEIS2020_28		-	-	-	-
-/home/jasonk1/scripts/git/meningotype/meningotype/test/B.fna	B	ctrA	8	5-2,10-1	F3-6	NEIS2020_12		-	-	-	-
-/home/jasonk1/scripts/git/meningotype/meningotype/test/C.fna	C	ctrA	177	21,26-2		F1-5	NEIS2020_3		-	-	-	-
-/home/jasonk1/scripts/git/meningotype/meningotype/test/W.fna	W	ctrA	11	5,2			F1-1	NEIS2020_244	-	-	-	-
-/home/jasonk1/scripts/git/meningotype/meningotype/test/X.fna	X	ctrA	181	5-1,10-1	F4-23	NEIS2020_509	-	-	-	-
-/home/jasonk1/scripts/git/meningotype/meningotype/test/Y.fna	Y	ctrA	23	5-2,10-1	F4-1	NEIS2020_67		-	-	-	-
+meningotype/test/A.fna	A	ctrA	4	7,13-1		F1-5	NEIS2020_28		-	-	-	-
+meningotype/test/B.fna	B	ctrA	8	5-2,10-1	F3-6	NEIS2020_12		-	-	-	-
+meningotype/test/C.fna	C	ctrA	177	21,26-2		F1-5	NEIS2020_3		-	-	-	-
+meningotype/test/W.fna	W	ctrA	11	5,2			F1-1	NEIS2020_244	-	-	-	-
+meningotype/test/X.fna	X	ctrA	181	5-1,10-1	F4-23	NEIS2020_509	-	-	-	-
+meningotype/test/Y.fna	Y	ctrA	23	5-2,10-1	F4-1	NEIS2020_67		-	-	-	-
 ```
 
 or to check finetyping and Bexsero antigen sequence typing:
@@ -86,12 +86,12 @@ $ meningotype.py --test --finetype --bast
 Running meningotype.py on test examples ... 
 $ meningotype.py A.fna B.fna C.fna W.fna X.fna Y.fna
 SAMPLE_ID	SEROGROUP	ctrA	MLST	PorA	FetA	PorB	fHbp	NHBA	NadA	BAST
-/home/jasonk1/scripts/git/meningotype/meningotype/test/A.fna	A	ctrA	4	7,13-1		F1-5	NEIS2020_28		5	29	0	639
-/home/jasonk1/scripts/git/meningotype/meningotype/test/B.fna	B	ctrA	8	5-2,10-1	F3-6	NEIS2020_12		16	20	8	150
-/home/jasonk1/scripts/git/meningotype/meningotype/test/C.fna	C	ctrA	177	21,26-2		F1-5	NEIS2020_3		17	101	9	118
-/home/jasonk1/scripts/git/meningotype/meningotype/test/W.fna	W	ctrA	11	5,2			F1-1	NEIS2020_244	623	29	6	141
-/home/jasonk1/scripts/git/meningotype/meningotype/test/X.fna	X	ctrA	181	5-1,10-1	F4-23	NEIS2020_509	391	358	0	-
-/home/jasonk1/scripts/git/meningotype/meningotype/test/Y.fna	Y	ctrA	23	5-2,10-1	F4-1	NEIS2020_67		25	7	0	228
+meningotype/test/A.fna	A	ctrA	4	7,13-1		F1-5	NEIS2020_28		5	29	0	639
+meningotype/test/B.fna	B	ctrA	8	5-2,10-1	F3-6	NEIS2020_12		16	20	8	150
+meningotype/test/C.fna	C	ctrA	177	21,26-2		F1-5	NEIS2020_3		17	101	9	118
+meningotype/test/W.fna	W	ctrA	11	5,2			F1-1	NEIS2020_244	623	29	6	141
+meningotype/test/X.fna	X	ctrA	181	5-1,10-1	F4-23	NEIS2020_509	391	358	0	-
+meningotype/test/Y.fna	Y	ctrA	23	5-2,10-1	F4-1	NEIS2020_67		25	7	0	228
 ```
 
 
