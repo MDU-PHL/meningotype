@@ -8,7 +8,9 @@ from __future__ import print_function
 # Modules
 import argparse
 from argparse import RawTextHelpFormatter
+import sys
 import os
+from Bio.Seq import Seq
 from Bio import SeqIO
 from Bio.Blast.Applications import NcbiblastnCommandline
 from Bio.Blast import NCBIXML
@@ -23,25 +25,20 @@ def seqBLAST(f):
 	DBpath = resource_filename(__name__, 'db')
 	blastdb = os.path.join(DBpath, 'blast', 'synG')
 	# BLAST
-	fBLAST = NcbiblastnCommandline(query=f, db=blastdb, outfmt="'6 qseqid sstrand qstart qend sstart send slen'", dust='no', culling_limit=1)
+	fBLAST = NcbiblastnCommandline(query=f, db=blastdb, outfmt="'6 qseqid sstrand qstart qend sstart send slen qseq'", dust='no', culling_limit=1)
 	stdout, stderr = fBLAST()
 	blastOUT = stdout.split('\t')
-	if len(blastOUT) == 7:
-		blast_qseqid = blastOUT[0]
+	if len(blastOUT) == 8:
 		blast_sstrand = blastOUT[1]
-		blast_qstart = int(blastOUT[2])
-		blast_qend = int(blastOUT[3])
 		blast_sstart = int(blastOUT[4])
 		blast_send = int(blastOUT[5])
 		blast_slen = int(blastOUT[6])
-		for s in SeqIO.parse(f, 'fasta'):
-			if s.id == blastOUT[0]:
-				blastCONTIG = s.seq
+		blast_qseq = blastOUT[7]
 		if blast_sstrand == 'plus':
-			synG_SEQ = blastCONTIG[blast_qstart-1:blast_qend]
+			synG_SEQ = Seq(blast_qseq.strip())
 			synG_start = blast_sstart
 		else:
-			synG_SEQ = blastCONTIG[blast_qstart-1:blast_qend].reverse_complement()
+			synG_SEQ = Seq(blast_qseq.strip()).reverse_complement()
 			synG_start = blast_send
 	else:
 		synG_SEQ = '-'
