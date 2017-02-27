@@ -60,8 +60,8 @@ def menwy(f, p):
 		EX7E = str(EX7E_SEQ.translate())
 		if EX7E in seroDICT:
 			serogroup = seroDICT[EX7E[3]]
-		else:
-			serogroup = 'unk'
+#		else:
+#			serogroup = 'unk'
 	result = '\t'.join([f, serogroup, EX7E])
 	if p:
 		print(result)
