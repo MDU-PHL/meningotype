@@ -207,7 +207,7 @@ def bxtypeBLAST(s, db):
 		bx = '0'
 	return str(bx)
 
-def fineTYPE(f, finetypeprimers, pora1db, pora2db, fetdb):
+def fineTYPE(f, finetypeprimers, poradb, pora1db, pora2db, fetdb):
 	porACOUNT = []				# Setup list in case there are mixed/multiple hits
 	fetACOUNT = []
 	global porASEQS
@@ -236,7 +236,20 @@ def fineTYPE(f, finetypeprimers, pora1db, pora2db, fetdb):
 			fetARECR = SeqRecord(fetASEQ, id=f, description='FetA')
 			fetASEQS.append(fetARECR)
 	if len(porACOUNT) == 0:
-		porACOUNT.append('-')
+		porseqBLAST = NcbiblastnCommandline(query=f, db=poradb, perc_identity=90, outfmt='"6 qseq"', culling_limit='1')
+		stdout, stderr = porseqBLAST()
+		if stdout:
+			porAseq = Seq(stdout.strip())
+			porArec = SeqRecord(porAseq, id=f, description='PorA')
+			A1 = finetypeBLAST(porArec, pora1db)
+			A2 = finetypeBLAST(porArec, pora2db)
+			porA = A1 + ',' + A2
+			porACOUNT.append(porA)
+			porASEQ = amplicon.seq.upper()
+			porARECR = SeqRecord(porASEQ, id=f, description='PorA')
+			porASEQS.append(porARECR)
+		if len(porACOUNT) == 0:
+			porACOUNT.append('-')
 	if len(fetACOUNT) == 0:
 		fetACOUNT.append('-')
 	return porACOUNT, fetACOUNT
@@ -337,6 +350,7 @@ def main():
 	finetypePRIMERS = os.path.join( DBpath, 'finetypePRIMERS' )
 	bxPRIMERS = os.path.join( DBpath, 'bexseroPRIMERS' )
 
+	porADB = os.path.join( DBpath, 'blast', 'porA' )
 	porA1DB = os.path.join( DBpath, 'blast', 'porA1' )
 	porA2DB = os.path.join( DBpath, 'blast', 'porA2' )
 	fetDB = os.path.join( DBpath, 'blast', 'fet' )
@@ -461,7 +475,7 @@ def main():
 		ctrACOUNT = ctrA_out.split('\t')[1]
 		# BAST
 		if args.bast:
-			ftRESULTS = fineTYPE(f, finetypePRIMERS, porA1DB, porA2DB, fetDB)
+			ftRESULTS = fineTYPE(f, finetypePRIMERS, porADB, porA1DB, porA2DB, fetDB)
 			bxRESULTS = bxTYPE(f, bxPRIMERS, fHbpDB, NHBADB, NadADB)
 			porACOUNT = '/'.join(ftRESULTS[0])
 			fetACOUNT = '/'.join(ftRESULTS[1])
@@ -474,7 +488,7 @@ def main():
 				bxtype = BAST[bxallele]
 		# Finetyping (porA, fetA, porB)
 		elif args.finetype:
-			ftRESULTS = fineTYPE(f, finetypePRIMERS, porA1DB, porA2DB, fetDB)
+			ftRESULTS = fineTYPE(f, finetypePRIMERS, porADB, porA1DB, porA2DB, fetDB)
 			porBCOUNT = porBTYPE(f, porBDB)
 			porACOUNT = '/'.join(ftRESULTS[0])
 			fetACOUNT = '/'.join(ftRESULTS[1])
