@@ -100,8 +100,8 @@ def makeblastDB(db, infile, dbtype):
 		DBindex = db + '.nin'
 	elif dbtype == 'prot':
 		DBindex = db + '.pin'
-	if not os.path.isfile(DBindex):
-		proc = subprocess.Popen(['makeblastdb', '-in', infile, '-out', db, '-dbtype', dbtype], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+	proc = subprocess.Popen(['makeblastdb', '-in', infile, '-out', db, '-dbtype', dbtype], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+	print('Updated BLAST db.')
 
 ############### Main serotyping functions ######################################
 
@@ -377,6 +377,12 @@ def main():
 			update_db(NadAalleles, NadAURL)
 			msg('Updating "{}" ... '.format(BASTalleles))
 			update_db(BASTalleles, BASTURL)
+			# Setup BLASTDB
+			makeblastDB(allelesDB, seroALLELES, 'nucl')
+			makeblastDB(porA1DB, porA1alleles, 'prot')
+			makeblastDB(porA2DB, porA2alleles, 'prot')
+			makeblastDB(fetDB, fetalleles, 'prot')
+			makeblastDB(porBDB, porBalleles, 'nucl')
 			msg('Done.')
 		except IOError:
 			err('ERROR: Unable to update DB at "{}".\nCheck DB directory permissions and connection to http://pubmlst.org.'.format(DBpath))
@@ -394,13 +400,6 @@ def main():
 	check_db_files(porA2alleles, porA2URL)
 	check_db_files(fetalleles, fetAURL)
 	check_db_files(porBalleles, porBURL)
-
-	# Setup BLASTDB
-	makeblastDB(allelesDB, seroALLELES, 'nucl')
-	makeblastDB(porA1DB, porA1alleles, 'prot')
-	makeblastDB(porA2DB, porA2alleles, 'prot')
-	makeblastDB(fetDB, fetalleles, 'prot')
-	makeblastDB(porBDB, porBalleles, 'nucl')
 
 	if args.bast:
 		check_primer_files(bxPRIMERS)
