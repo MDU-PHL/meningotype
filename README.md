@@ -1,15 +1,15 @@
-#meningotype
+# meningotype
 
-*In silico* typing of *Neisseria meningitidis*  
+*In silico* typing of *Neisseria meningitidis* contigs
 - Serotyping
 - MLST  
 - Finetyping (*porA*, *fetA*, *porB*)  
 - Bexsero antigen sequence typing (BAST) (*fHbp*, *NHBA*, *NadA*, *PorA*)
 
-##Authors
+## Authors
 
 * Jason Kwong (@kwongjc)
-* Anders Gonçalves da Silva
+* Anders Gonçalves da Silva (@drandersg)
 * Torsten Seemann (@torstenseemann)
 
 ##Dependencies
@@ -20,29 +20,34 @@
 * [NCBI BLAST](https://blast.ncbi.nlm.nih.gov/Blast.cgi)
 * [mlst](https://github.com/tseemann/mlst)
 
-##Installation
+## Installation
 
 The easiest way of installing `meningotype` is using `pip`:
-
-    $ pip install --user git+https://github.com/MDU-PHL/meningotype.git
-    
+```
+$ pip install --user git+https://github.com/MDU-PHL/meningotype.git
+```
+ 
 The `--user` option will install the package locally, rather than in the global `python` directory. 
 
 Thus, by default, this will install the package in `$HOME/.local/`, and the executable in `$HOME/.local/bin/`. To install the executable in a custom location (e.g., `$HOME/bin`), use the following:
-
-    $ pip install --install-option="--install-scripts=$HOME/bin" --user git+https://github.com/MDU-PHL/meningotype.git
+```
+$ pip install --install-option="--install-scripts=$HOME/bin" --user git+https://github.com/MDU-PHL/meningotype.git
+```
 
 To upgrade to a newer version: 
+```
+$ pip install --upgrade --install-option="--install-scripts=$HOME/bin" --user git+https://github.com/MDU-PHL/meningotype.git
+```
 
-    $ pip install --upgrade --install-option="--install-scripts=$HOME/bin" --user git+https://github.com/MDU-PHL/meningotype.git
+The simplest way to install dependencies is to use the Brew (MacOS) or
+LinuxBrew (Linux) system. Users who have difficulty installing `isPcr` from
+source (eg. MacOS) may have more success with Brew:
 
-The simplest way to install dependencies is to use the Brew (Mac OS X) or LinuxBrew (Linux) system. Users who have difficulty installing isPcr from source (eg. Mac OS) may have more success with Brew:
 ```
 $ brew tap homebrew/science
 $ brew tap chapmanb/cbl
 $ brew tap tseemann/homebrew-bioinformatics-linux
 ```
-
 
 ### To test installation
 
@@ -95,8 +100,7 @@ meningotype/test/X.fna	X	ctrA	181	5-1,10-1	F4-23	NEIS2020_509	391	358	0	-
 meningotype/test/Y.fna	Y	ctrA	23	5-2,10-1	F4-1	NEIS2020_67		25	7	0	228
 ```
 
-
-##Usage
+## Usage
 
 ```
 $ meningotype.py -h
@@ -130,7 +134,7 @@ optional arguments:
 ```
 
 
-##Quick start
+## Quick start
 
 **To perform *in silico* serotyping on FASTA files:**
 
@@ -150,7 +154,7 @@ The serotypes are printed in tab-separated format to `stdout`.
 
 `$ meningotype --finetype --printseq <fasta1> <fasta2> <fasta3> ... <fastaN>`
 
-##Updating the allele databases
+## Updating the allele databases
 
 **To update the allele databases from http://pubmlst.org/neisseria/ :**  
 *Warning: Ensure you back up your old databases if you wish to keep them.*
@@ -159,26 +163,25 @@ The serotypes are printed in tab-separated format to `stdout`.
 
 A copy of the old database is saved just in case, but is overwritten with each subsequent   ```--updatedb```.
 
-
-##Citation
+## Citation
 
 Please cite as:
 
-Kwong JC, Gonçalves da Silva A, Stinear TP, Howden BP and Seemann T.  
+Kwong JC, Gonçalves da Silva A, Stinear TP, Howden BP,  Seemann T.  
 ***meningotype*: *in silico* typing for *Neisseria meningitidis*.**  
 GitHub https://github.com/MDU-PHL/meningotype
 
-##Bugs
+## Bugs
 
 Please submit via the [GitHub issues page](https://github.com/MDU-PHL/meningotype/issues).  
 
 Note that the finetyping databases and website are curated and hosted by http://pubmlst.org/neisseria/. For issues with the databases, please contact the [pubmlst curator](mailto:keith.jolley@zoo.ox.ac.uk).
 
-##Software Licence
+## Software Licence
 
 [GPLv3](https://github.com/MDU-PHL/meningotype/blob/master/LICENSE)
 
-##References
+## References
 
 * Mothershed et al. J Clin Microbiol, 2004; 42(1): 320-328.  
 * Jolley et al. FEMS Microbiol Rev, 2007; 31: 89-96.  
