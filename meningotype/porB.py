@@ -10,16 +10,20 @@ import argparse
 from argparse import RawTextHelpFormatter
 import sys
 import os
-import StringIO
+#import StringIO
 from Bio import SeqIO
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
 from Bio.Blast.Applications import NcbiblastnCommandline
 from Bio.Blast import NCBIXML
 from pkg_resources import resource_string, resource_filename
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
 
 # Import local modules
-import nmen
+from meningotype import nmen
 
 # Standard functions
 # Log a message to stderr
@@ -89,7 +93,7 @@ def main():
 		'Dependencies: Python 2.x, BioPython, BLAST\n'
 		'=====================================')
 	args = parser.parse_args()
-	
+
 	if args.db:
 		DBpath = str(args.db).rstrip('/')
 	else:

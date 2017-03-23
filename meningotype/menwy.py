@@ -17,7 +17,7 @@ from Bio.Blast import NCBIXML
 from pkg_resources import resource_string, resource_filename
 
 # Local modules
-import nmen
+from meningotype import nmen
 
 # BLAST
 def seqBLAST(f):
@@ -53,7 +53,7 @@ def menwy(f, p):
 	EX7E = '-'
 	synG_RESULT = seqBLAST(f)
 	synG_SEQ = synG_RESULT[0]
-	synG_START = synG_RESULT[1]	
+	synG_START = synG_RESULT[1]
 	if synG_START + synG_RESULT[2] > 945:
 		start = 919 - synG_START
 		EX7E_SEQ = synG_SEQ[918:945]
@@ -87,6 +87,6 @@ def main():
 	print('\t'.join(['SAMPLE_ID', 'W/Y', 'EX7E_MOTIF']))
 	for f in args.fasta:
 		menwy(f, True)
-	
+
 if __name__ == "__main__":
 	main()

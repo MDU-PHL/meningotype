@@ -12,10 +12,14 @@ import sys
 import os
 import subprocess
 from subprocess import Popen
-import StringIO
+#import StringIO
 from Bio import SeqIO
 from Bio.Blast.Applications import NcbiblastnCommandline
 from pkg_resources import resource_string, resource_filename
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
 
 # Standard functions
 # Log a message to stderr
@@ -75,13 +79,13 @@ def main():
 		'Dependencies: Python 2.x, BioPython, BLAST\n'
 		'=====================================')
 	args = parser.parse_args()
-	
+
 	DBpath = resource_filename(__name__, 'db')
-	
+
 	# Main
 	print('\t'.join(['SAMPLE_ID', 'PCRresult', 'BLASTresult']))
 	for f in args.fasta:
 		ctrA_PCR(f, True, DBpath)
-	
+
 if __name__ == "__main__":
 	main()
