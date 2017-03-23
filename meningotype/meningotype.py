@@ -157,7 +157,7 @@ def finetypeBLAST(s, db):
 def bxtypeBLAST(s, db):
 	bx = None
 	allele = None
-	bxBLAST = NcbiblastxCommandline(query='-', db=db, outfmt='"6 qseqid sseqid pident length qcovs gaps evalue"', seg='no', culling_limit='1', evalue='1e-100', query_gencode='11')
+	bxBLAST = NcbiblastxCommandline(query='-', db=db, outfmt='"6 qseqid sseqid pident length qcovs gaps evalue"', seg='no', culling_limit='1', evalue='1e-100', query_gencode='11', ungapped=True, comp_based_stats=0, matrix="PAM30")
 	stdout, stderr = bxBLAST(stdin=s.format('fasta'))
 	if stdout:
 		BLASTout = stdout.split('\n')
