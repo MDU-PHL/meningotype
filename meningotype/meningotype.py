@@ -155,8 +155,8 @@ def nm_mlst(f):
 def finetypeBLAST(s, db):
 	ft = None
 	allele = None
-#	ftBLAST = NcbiblastxCommandline(query='-', db=db, outfmt='"6 qseqid sseqid pident length slen gaps evalue"', seg='no', query_gencode='11')			# Original blastx command
-	ftBLAST = NcbiblastxCommandline(query='-', db=db, outfmt='"6 qseqid sseqid pident length slen gaps evalue"', seg='no', query_gencode='11', matrix='PAM30', ungapped='true', comp_based_stats='0', evalue='1E-6', max_target_seqs='1')		# blastx command to fix finding short sequences
+	ftBLAST = NcbiblastxCommandline(query='-', db=db, outfmt='"6 qseqid sseqid pident length slen gaps evalue"', seg='no', query_gencode='11')			# Original blastx command
+#	ftBLAST = NcbiblastxCommandline(query='-', db=db, outfmt='"6 qseqid sseqid pident length slen gaps evalue"', seg='no', query_gencode='11', matrix='PAM30', ungapped='true', comp_based_stats='0', evalue='1E-6', max_target_seqs='1')		# blastx command to fix finding short sequences
 	stdout, stderr = ftBLAST(stdin=s.format('fasta'))
 	if stdout:
 		BLASTout = stdout.split('\n')
