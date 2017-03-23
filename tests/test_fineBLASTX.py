@@ -4,6 +4,7 @@ import os
 from Bio import SeqIO
 from Bio.SeqRecord import SeqRecord
 from Bio.Seq import Seq
+import meningotype
 
 from meningotype import meningotype
 
