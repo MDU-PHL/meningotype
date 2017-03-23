@@ -11,7 +11,7 @@ from argparse import RawTextHelpFormatter
 import sys
 import os
 import os.path
-import StringIO
+#import StringIO
 import urllib
 import subprocess
 from subprocess import Popen
@@ -21,6 +21,10 @@ from Bio.SeqRecord import SeqRecord
 from Bio.Blast.Applications import NcbiblastnCommandline
 from Bio.Blast.Applications import NcbiblastxCommandline
 from pkg_resources import resource_string, resource_filename
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
 
 ###### Script globals ##########################################################
 
@@ -133,7 +137,7 @@ def seroTYPE(f, seroprimers, allelesdb):
 def finetypeBLAST(s, db):
 	ft = None
 	allele = None
-	ftBLAST = NcbiblastxCommandline(query='-', db=db, outfmt='"6 qseqid sseqid pident length qcovs gaps evalue"', seg='no', query_gencode='11')
+	ftBLAST = NcbiblastxCommandline(query='-', db=db, outfmt='"6 qseqid sseqid pident length qcovs gaps evalue"', seg='no', query_gencode='11', ungapped=True, comp_based_stats=0, matrix="PAM30")
 	stdout, stderr = ftBLAST(stdin=s.format('fasta'))
 	if stdout:
 		BLASTout = stdout.split('\n')
@@ -303,7 +307,7 @@ def main():
 	fHbpDB = os.path.join( DBpath, 'blast', 'fHbp_peptide' )
 	NHBADB = os.path.join( DBpath, 'blast', 'NHBA_peptide' )
 	NadADB = os.path.join( DBpath, 'blast', 'NadA_peptide' )
- 
+
 	if args.updatedb:
 		msg('Updating "{}" ... '.format(porA1alleles))
 		update_db(porA1alleles, porA1URL)
