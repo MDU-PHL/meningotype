@@ -20,7 +20,7 @@ from pkg_resources import resource_string, resource_filename
 try:
     from StringIO import StringIO
 except ImportError:
-    from io import StringIO
+    import io as StringIO
 
 # Import local modules
 from meningotype import nmen

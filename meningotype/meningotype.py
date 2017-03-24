@@ -23,7 +23,7 @@ from pkg_resources import resource_string, resource_filename
 try:
     from StringIO import StringIO
 except ImportError:
-    from io import StringIO
+    import io as StringIO
 
 # Import local modules
 import meningotype
@@ -113,6 +113,7 @@ def seroTYPE(f, seroprimers, allelesdb):
 	seroCOUNT = []				# Setup list in case there are mixed/multiple hits
 	proc = subprocess.Popen(['isPcr', f, seroprimers, 'stdout', '-minPerfect=10'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 	PCRout = proc.communicate()[0]
+	PCRout = PCRout.decode('ascii')
 	if not PCRout:
 		sero = None
 		seroBLAST = NcbiblastnCommandline(query=f, db=allelesdb, task='blastn', perc_identity=90, evalue='1e-20', outfmt='"6 sseqid pident length"', culling_limit='1')
@@ -155,6 +156,7 @@ def seroWY(f, sero):
 def nm_mlst(f):
 	proc = subprocess.Popen(['mlst', '--scheme=neisseria', '--quiet', f], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 	PCRout = proc.communicate()[0]
+	PCRout = PCRout.decode('ascii')
 	return PCRout
 
 def finetypeBLAST(s, db):
@@ -221,6 +223,7 @@ def fineTYPE(f, finetypeprimers, poradb, pora1db, pora2db, fetdb):
 	global fetASEQS
 	proc = subprocess.Popen(['isPcr', f, finetypeprimers, 'stdout', '-maxSize=800', '-tileSize=10', '-minPerfect=8', '-stepSize=3'], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
 	PCRout = proc.communicate()[0]
+	PCRout = PCRout.decode('ascii')
 	alleleSEQ = StringIO.StringIO()
 	alleleSEQ.write(PCRout)
 	alleleSEQ.seek(0)
@@ -270,6 +273,7 @@ def bxTYPE(f, bxPRIMERS, fHbpDB, NHBADB, NadADB):
 	global NadASEQS
 	proc = subprocess.Popen(['isPcr', f, bxPRIMERS, 'stdout', '-maxSize=3000', '-tileSize=7', '-minPerfect=8', '-stepSize=3'], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
 	PCRout = proc.communicate()[0]
+	PCRout = PCRout.decode('ascii')
 	alleleSEQ = StringIO.StringIO()
 	alleleSEQ.write(PCRout)
 	alleleSEQ.seek(0)
@@ -475,6 +479,7 @@ def main():
 			print(mlstOUT.split('\n')[1])
 			continue
 		elif args.mlst == 'on':
+			print(mlst)
 			mlst = mlstOUT.split('\t')[11]
 		seroCOUNT = '/'.join(seroTYPE(f, seroPRIMERS, allelesDB))
 		ctrA_out = ctrA.ctrA_PCR(f, False, DBpath)

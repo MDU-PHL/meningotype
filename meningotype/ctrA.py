@@ -19,7 +19,7 @@ from pkg_resources import resource_string, resource_filename
 try:
     from StringIO import StringIO
 except ImportError:
-    from io import StringIO
+    import io as StringIO
 
 # Standard functions
 # Log a message to stderr
@@ -39,6 +39,7 @@ def ctrA_PCR(f, p, dbpath):
 	resultPCR = '-'
 	proc = subprocess.Popen(['isPcr', f, ctrAPRIMERS, 'stdout', '-minPerfect=10'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 	PCRout = proc.communicate()[0]
+	PCRout = PCRout.decode('ascii')
 	if not PCRout:
 		ctrABLAST = NcbiblastnCommandline(query=f, db=ctrADB, task='blastn', perc_identity=90, evalue='1e-20', outfmt='"6 sseqid pident length"', culling_limit='1')
 		stdout, stderr = ctrABLAST()
