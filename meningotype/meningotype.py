@@ -26,7 +26,8 @@ except ImportError:
     from io import StringIO
 
 # Import local modules
-from . import nmen, menwy, ctrA, porB, finetype
+import meningotype
+from meningotype import nmen, menwy, ctrA, porB, finetype
 
 ###### Script globals ##########################################################
 
