@@ -115,7 +115,7 @@ def seroTYPE(f, seroprimers, allelesdb):
 		lenMATCH = 0
 		line = stdout.split('\n')[0]
 		amp = line.split('\t')
-		sero = amp[0]		# Currently only takes top/first BLAST hit
+		sero = amp[0]			# Currently only takes top/first BLAST hit
 		if not sero:
 			seroCOUNT.append('-')
 		else:
@@ -155,8 +155,7 @@ def nm_mlst(f):
 def finetypeBLAST(s, db):
 	ft = None
 	allele = None
-	ftBLAST = NcbiblastxCommandline(query='-', db=db, outfmt='"6 qseqid sseqid pident length slen gaps evalue"', seg='no', query_gencode='11')			# Original blastx command
-#	ftBLAST = NcbiblastxCommandline(query='-', db=db, outfmt='"6 qseqid sseqid pident length slen gaps evalue"', seg='no', query_gencode='11', matrix='PAM30', ungapped='true', comp_based_stats='0', evalue='1E-6', max_target_seqs='1')		# blastx command to fix finding short sequences
+	ftBLAST = NcbiblastxCommandline(query='-', db=db, outfmt='"6 qseqid sseqid pident length slen gaps nident evalue"', seg='no', query_gencode='11', matrix='PAM30', ungapped='true', comp_based_stats='0', evalue='1e-2')		# blastx command to fix finding short sequences
 	stdout, stderr = ftBLAST(stdin=s.format('fasta'))
 	if stdout:
 		BLASTout = stdout.split('\n')
@@ -164,15 +163,13 @@ def finetypeBLAST(s, db):
 		for line in BLASTout:
 			if line.strip():
 				BLASTline = line.split('\t')
-				if float(BLASTline[2]) == 100 and BLASTline[5] == '0':		# check 100% match with no gaps
-					if int(BLASTline[3]) == int(BLASTline[4]):				# check length of db subject = length of match
-						if int(BLASTline[3]) > int(lenMATCH):				# select longest match
+				if BLASTline[5] == '0':														# check no gaps
+					if int(BLASTline[3]) == int(BLASTline[4]) == int(BLASTline[6]):			# check length of db subject = length of match = no. identical matches
+						if int(BLASTline[3]) > int(lenMATCH):								# select longest match
 							lenMATCH = BLASTline[3]
 							ftRESULT = BLASTline[1]
 							ft = ftRESULT.split('_')[2]
-#				elif not ft:
-#					ft = 'new'
-		if not ft:															# if amplicon detected, but no match in db, assign as new
+		if not ft:																			# if amplicon detected, but no match in db, assign as new
 			ft = 'new'
 	return str(ft)
 
@@ -185,7 +182,8 @@ def porBTYPE(f, blastdb):
 def bxtypeBLAST(s, db):
 	bx = None
 	allele = None
-	bxBLAST = NcbiblastxCommandline(query='-', db=db, outfmt='"6 qseqid sseqid pident length slen gaps evalue"', seg='no', culling_limit='1', evalue='1e-100', query_gencode='11')
+	bxBLAST = NcbiblastxCommandline(query='-', db=db, outfmt='"6 qseqid sseqid pident length slen gaps nident evalue"', seg='no', culling_limit='1', 
+evalue='1e-100', query_gencode='11')
 	stdout, stderr = bxBLAST(stdin=s.format('fasta'))
 	if stdout:
 		BLASTout = stdout.split('\n')
@@ -193,22 +191,20 @@ def bxtypeBLAST(s, db):
 		for line in BLASTout:
 			if line.strip():
 				BLASTline = line.split('\t')
-				if float(BLASTline[2]) == 100 and BLASTline[5] == '0':		# check 100% match with no gaps
-					if int(BLASTline[3]) == int(BLASTline[4]):				# check length of db subject = length of match
-						if int(BLASTline[3]) > int(lenMATCH):				# select longest match
+				if BLASTline[5] == '0':														# check no gaps
+					if int(BLASTline[3]) == int(BLASTline[4]) == int(BLASTline[6]):			# check length of db subject = length of match = no. identical matches
+						if int(BLASTline[3]) > int(lenMATCH):								# select longest match
 							lenMATCH = BLASTline[3]
 							bxRESULT = BLASTline[1]
 							bx = bxRESULT.split('_')[2]
-#				elif not bx:
-#					bx = 'new'
-		if not bx:															# if amplicon detected, but no match in db, assign as new
+		if not bx:																			# if amplicon detected, but no match in db, assign as new
 			bx = 'new'
-	else:																	# if no amplicon detected, assign as 0
+	else:																					# if no amplicon detected, assign as 0
 		bx = '0'
 	return str(bx)
 
 def fineTYPE(f, finetypeprimers, poradb, pora1db, pora2db, fetdb):
-	porACOUNT = []				# Setup list in case there are mixed/multiple hits
+	porACOUNT = []							# Setup list in case there are mixed/multiple hits
 	fetACOUNT = []
 	global porASEQS
 	global fetASEQS
@@ -255,7 +251,7 @@ def fineTYPE(f, finetypeprimers, poradb, pora1db, pora2db, fetdb):
 	return porACOUNT, fetACOUNT
 
 def bxTYPE(f, bxPRIMERS, fHbpDB, NHBADB, NadADB):
-	fHbpCOUNT = []				# Setup list in case there are mixed/multiple hits
+	fHbpCOUNT = []							# Setup list in case there are mixed/multiple hits
 	NHBACOUNT = []
 	NadACOUNT = []
 	global fHbpSEQS
@@ -314,7 +310,8 @@ def main():
 	parser.add_argument('--finetype', action='store_true', help='perform porA and fetA fine typing (default=off)')
 	parser.add_argument('--porB', action='store_true', help='perform porB sequence typing (NEIS2020) (default=off)')
 	parser.add_argument('--bast', action='store_true', help='perform Bexsero antigen sequence typing (BAST) (default=off)')
-	parser.add_argument('--mlst', metavar='on|off|only', default='on', help='toggles whether MLST is run or not, or the only type run')
+	parser.add_argument('--mlst', action='store_true', help='perform MLST (default=off)')
+	parser.add_argument('--all', action='store_true', help='perform MLST, porA, fetA, porB, BAST typing (default=off)')
 	parser.add_argument('--db', metavar='DB', help='specify custom directory containing allele databases for porA/fetA typing\n'
 		'directory must contain database files: "FetA_VR.fas", "PorA_VR1.fas", "PorA_VR2.fas"\n'
 		'for Bexsero typing: "fHbp_peptide.fas", "NHBA_peptide.fas", "NadA_peptide.fas", "BASTalleles.txt"')
@@ -323,8 +320,8 @@ def main():
 	parser.add_argument('--test', action='store_true', default=False, help='run test example')
 	parser.add_argument('--version', action='version', version=
 		'=====================================\n'
-		'%(prog)s v0.7-beta\n'
-		'Updated 22-Feb-2017 by Jason Kwong\n'
+		'%(prog)s v0.8-beta\n'
+		'Updated 25-Mar-2017 by Jason Kwong\n'
 		'Dependencies: isPcr, mlst, BLAST+, BioPython\n'
 		'=====================================')
 	args = parser.parse_args()
@@ -377,12 +374,6 @@ def main():
 			update_db(NadAalleles, NadAURL)
 			msg('Updating "{}" ... '.format(BASTalleles))
 			update_db(BASTalleles, BASTURL)
-			# Setup BLASTDB
-			makeblastDB(allelesDB, seroALLELES, 'nucl')
-			makeblastDB(porA1DB, porA1alleles, 'prot')
-			makeblastDB(porA2DB, porA2alleles, 'prot')
-			makeblastDB(fetDB, fetalleles, 'prot')
-			makeblastDB(porBDB, porBalleles, 'nucl')
 			msg('Done.')
 		except IOError:
 			err('ERROR: Unable to update DB at "{}".\nCheck DB directory permissions and connection to http://pubmlst.org.'.format(DBpath))
@@ -401,7 +392,14 @@ def main():
 	check_db_files(fetalleles, fetAURL)
 	check_db_files(porBalleles, porBURL)
 
-	if args.bast:
+	# Setup BLASTDB
+	makeblastDB(allelesDB, seroALLELES, 'nucl')
+	makeblastDB(porA1DB, porA1alleles, 'prot')
+	makeblastDB(porA2DB, porA2alleles, 'prot')
+	makeblastDB(fetDB, fetalleles, 'prot')
+	makeblastDB(porBDB, porBalleles, 'nucl')
+
+	if args.bast or args.all:
 		check_primer_files(bxPRIMERS)
 		check_db_files(fHbpalleles, fHbpURL)
 		check_db_files(NHBAalleles, NHBAURL)
@@ -446,10 +444,7 @@ def main():
 		sys.stderr.write('error: {}\n'.format( message ) )
 		parser.print_help()
 		parser.exit(1)
-	if args.mlst == 'only':
-		headers = ['FILE', 'SCHEME', 'ST', 'abcZ', 'adk', 'aroE', 'fumC', 'gdh', 'pdhC', 'pgm']
-	else:
-		headers = ['SAMPLE_ID', 'SEROGROUP', 'ctrA', 'MLST', 'PorA', 'FetA', 'PorB', 'fHbp', 'NHBA', 'NadA', 'BAST']
+	headers = ['SAMPLE_ID', 'SEROGROUP', 'ctrA', 'MLST', 'PorA', 'FetA', 'PorB', 'fHbp', 'NHBA', 'NadA', 'BAST']
 	print(sep.join(headers))
 	for f in args.fasta:
 		# Defaults
@@ -462,23 +457,20 @@ def main():
 		NadACOUNT = '-'
 		bxtype = '-'
 		# Standard run = serotype + ctrA
-		if args.mlst != 'off':
-			mlstOUT = nm_mlst(f)
-		if args.mlst == 'only':
-			print(mlstOUT.split('\n')[1])
-			continue
-		elif args.mlst == 'on':
-			mlst = mlstOUT.split('\t')[11]
 		seroCOUNT = '/'.join(seroTYPE(f, seroPRIMERS, allelesDB))
 		ctrA_out = ctrA.ctrA_PCR(f, False, DBpath)
 		ctrACOUNT = ctrA_out.split('\t')[1]
+		# Optional typing
+		if args.porB or args.all:
+			porBCOUNT = porBTYPE(f, porBDB)
+		if args.mlst or args.all:
+			mlst = nm_mlst(f).split('\t')[11]
 		# BAST
-		if args.bast:
+		if args.bast or args.all:
 			ftRESULTS = fineTYPE(f, finetypePRIMERS, porADB, porA1DB, porA2DB, fetDB)
 			bxRESULTS = bxTYPE(f, bxPRIMERS, fHbpDB, NHBADB, NadADB)
 			porACOUNT = '/'.join(ftRESULTS[0])
 			fetACOUNT = '/'.join(ftRESULTS[1])
-			porBCOUNT = porBTYPE(f, porBDB)
 			fHbpCOUNT = '/'.join(bxRESULTS[0])
 			NHBACOUNT = '/'.join(bxRESULTS[1])
 			NadACOUNT = '/'.join(bxRESULTS[2])
@@ -488,11 +480,10 @@ def main():
 		# Finetyping (porA, fetA, porB)
 		elif args.finetype:
 			ftRESULTS = fineTYPE(f, finetypePRIMERS, porADB, porA1DB, porA2DB, fetDB)
-			porBCOUNT = porBTYPE(f, porBDB)
 			porACOUNT = '/'.join(ftRESULTS[0])
 			fetACOUNT = '/'.join(ftRESULTS[1])
-		elif args.porB:
-			porBCOUNT = porBTYPE(f, porBDB)
+
+		# Print results to stdout
 		results = [f, seroCOUNT, ctrACOUNT, mlst, porACOUNT, fetACOUNT, porBCOUNT, fHbpCOUNT, NHBACOUNT, NadACOUNT, bxtype]
 		print(sep.join(results))
 

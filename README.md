@@ -88,7 +88,7 @@ meningotype/test/Y.fna	Y	ctrA	23	5-2,10-1	F4-1	NEIS2020_67		-	-	-	-
 or to check finetyping and Bexsero antigen sequence typing:
 
 ```
-$ meningotype.py --test --finetype --bast
+$ meningotype.py --test --all
 Running meningotype.py on test examples ... 
 $ meningotype.py A.fna B.fna C.fna W.fna X.fna Y.fna
 SAMPLE_ID	SEROGROUP	ctrA	MLST	PorA	FetA	PorB	fHbp	NHBA	NadA	BAST
@@ -116,21 +116,22 @@ Bexsero antigen sequence typing (BAST) Ref: Brehony et al, Vaccine 2016; 34(39):
 See also http://www.neisseria.org/nm/typing/
 
 positional arguments:
-  FASTA               input FASTA files eg. fasta1, fasta2, fasta3 ... fastaN
+  FASTA       input FASTA files eg. fasta1, fasta2, fasta3 ... fastaN
 
 optional arguments:
-  -h, --help          show this help message and exit
-  --finetype          perform porA and fetA fine typing (default=off)
-  --porB              perform porB sequence typing (NEIS2020) (default=off)
-  --bast              perform Bexsero antigen sequence typing (BAST) (default=off)
-  --mlst on|off|only  toggles whether MLST is run or not, or the only type run
-  --db DB             specify custom directory containing allele databases for porA/fetA typing
-                      directory must contain database files: "FetA_VR.fas", "PorA_VR1.fas", "PorA_VR2.fas"
-                      for Bexsero typing: "fHbp_peptide.fas", "NHBA_peptide.fas", "NadA_peptide.fas", "BASTalleles.txt"
-  --printseq          save porA/fetA or BAST allele sequences to file (default=off)
-  --updatedb          update allele database from <pubmlst.org>
-  --test              run test example
-  --version           show program's version number and exit
+  -h, --help  show this help message and exit
+  --finetype  perform porA and fetA fine typing (default=off)
+  --porB      perform porB sequence typing (NEIS2020) (default=off)
+  --bast      perform Bexsero antigen sequence typing (BAST) (default=off)
+  --mlst      perform MLST (default=off)
+  --all       perform MLST, porA, fetA, porB, BAST typing (default=off)
+  --db DB     specify custom directory containing allele databases for porA/fetA typing
+              directory must contain database files: "FetA_VR.fas", "PorA_VR1.fas", "PorA_VR2.fas"
+              for Bexsero typing: "fHbp_peptide.fas", "NHBA_peptide.fas", "NadA_peptide.fas", "BASTalleles.txt"
+  --printseq  save porA/fetA or BAST allele sequences to file (default=off)
+  --updatedb  update allele database from <pubmlst.org>
+  --test      run test example
+  --version   show program's version number and exit
 ```
 
 
