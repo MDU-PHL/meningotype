@@ -338,7 +338,7 @@ def main():
 	parser.add_argument('--db', metavar='DB', help='specify custom directory containing allele databases for porA/fetA typing\n'
 		'directory must contain database files: "FetA_VR.fas", "PorA_VR1.fas", "PorA_VR2.fas"\n'
 		'for Bexsero typing: "fHbp_peptide.fas", "NHBA_peptide.fas", "NadA_peptide.fas", "BASTalleles.txt"')
-	parser.add_argument('--printseq', action='store_true', help='save porA/fetA or BAST allele sequences to file (default=off)')
+	parser.add_argument('--printseq', metavar='DIR', help='specify directory to save extracted porA/fetA/porB or BAST allele sequences (default=off)')
 	parser.add_argument('--updatedb', action='store_true', default=False, help='update allele database from <pubmlst.org>')
 	parser.add_argument('--test', action='store_true', default=False, help='run test example')
 	parser.add_argument('--version', action='version', version=
@@ -425,9 +425,12 @@ def main():
 		check_db_files(NHBAalleles, NHBAURL)
 		check_db_files(NadAalleles, NadAURL)
 		check_db_files(BASTalleles, BASTURL)
-		makeblastDB(fHbpDB, fHbpalleles, 'prot')
-		makeblastDB(NHBADB, NHBAalleles, 'prot')
-		makeblastDB(NadADB, NadAalleles, 'prot')
+		if not os.path.isfile(fHbpDB):
+			makeblastDB(fHbpDB, fHbpalleles, 'prot')
+		if not os.path.isfile(NHBADB):
+			makeblastDB(NHBADB, NHBAalleles, 'prot')
+		if not os.path.isfile(NadADB):
+			makeblastDB(NadADB, NadAalleles, 'prot')
 
 		# Import allele profiles as dictionary
 		BAST = {}
@@ -449,14 +452,15 @@ def main():
 		args.fasta = testSEQS
 
 	# Create folder for output sequences if specified
+	# Test if directory exists and is writeable before running meningotype
 	if args.printseq:
 		try:
-			if not os.path.exists('printseq'):
-				os.makedirs('printseq')
+			if not os.path.exists(args.printseq):
+				os.makedirs(args.printseq)
 			else:
-				err('ERROR: "printseq" folder already exists in this directory.')
+				err('ERROR: "{}" already exists.'.format(args.printseq))
 		except OSError:
-			err('ERROR: Unable to create "printseq" folder in this directory.')
+			err('ERROR: Unable to create "{}" in this directory.'.format(args.printseq))
 
 	# Run meningotype
 	if len(args.fasta) == 0:
@@ -513,24 +517,24 @@ def main():
 	# Print allele sequences to file
 	if args.printseq:
 		if porASEQS:
-			with open('printseq/porA_seqs.fasta', 'w') as output:
+			with open(os.path.join(args.printseq, 'porA_seqs.fasta'), 'w') as output:
 				SeqIO.write(porASEQS, output, 'fasta')
 		if fetASEQS:
-			with open('printseq/fetA_seqs.fasta', 'w') as output:
+			with open(os.path.join(args.printseq, 'fetA_seqs.fasta'), 'w') as output:
 				SeqIO.write(fetASEQS, output, 'fasta')
 		if porBSEQS:
-			with open('printseq/porB_seqs.fasta', 'w') as output:
+			with open(os.path.join(args.printseq, 'porB_seqs.fasta'), 'w') as output:
 				SeqIO.write(porBSEQS, output, 'fasta')
 		if fHbpSEQS:
-			with open('printseq/fHbp_seqs.fasta', 'w') as output:
+			with open(os.path.join(args.printseq, 'fHbp_seqs.fasta'), 'w') as output:
 				SeqIO.write(fHbpSEQS, output, 'fasta')
 		if NHBASEQS:
-			with open('printseq/NHBA_seqs.fasta', 'w') as output:
+			with open(os.path.join(args.printseq, 'NHBA_seqs.fasta'), 'w') as output:
 				SeqIO.write(NHBASEQS, output, 'fasta')
 		if NadASEQS:
-			with open('printseq/NadA_seqs.fasta', 'w') as output:
+			with open(os.path.join(args.printseq, 'NadA_seqs.fasta'), 'w') as output:
 				SeqIO.write(NadASEQS, output, 'fasta')
-		msg('Done. Allele sequences saved to "printseq" folder.')
+		msg('Done. Allele sequences saved in "{}/".'.format(args.printseq))
 
 	sys.exit(0)
 
