@@ -11,6 +11,7 @@ from argparse import RawTextHelpFormatter
 import sys
 import os
 import os.path
+import re
 import StringIO
 import urllib
 import subprocess
@@ -91,7 +92,7 @@ def update_db(db_file, db_url):
 		os.rename(db_file, db_file+'.old')
 	urllib.urlretrieve(db_url, db_file)
 
-# Check database files are present
+# Check files are present
 def check_primer_files(f):
 	if not os.path.isfile(f):
 		err('ERROR: Cannot locate file: "{}"'.format(f))
@@ -99,6 +100,20 @@ def check_primer_files(f):
 def check_db_files(f, db_url):
 	if not os.path.isfile(f):
 		update_db(f, db_url)
+
+def check_fasta(f):
+	if not os.path.isfile(f) or os.path.getsize(f) < 1:
+		return False
+	with open(f, 'r') as fasta:
+		if fasta.readline()[0] != '>':
+			return False
+		for line in fasta:
+			line = line.strip()
+			if not line or line[0] == '>':
+				continue
+			if bool(re.search('[^ACTGactg]', line)):
+				return False
+	return True
 
 # Set up BLAST databases if not present
 def makeblastDB(db, infile, dbtype):
@@ -346,11 +361,11 @@ def main():
 	BASTalleles = os.path.join( DBpath, 'BASTalleles.txt' )
 
 	seroALLELES = os.path.join( DBpath, 'seroALLELES.fa' )
-	allelesDB = os.path.join( DBpath, 'blast', 'seroALLELES' )
 	seroPRIMERS = os.path.join( DBpath, 'seroPRIMERS' )
 	finetypePRIMERS = os.path.join( DBpath, 'finetypePRIMERS' )
 	bxPRIMERS = os.path.join( DBpath, 'bexseroPRIMERS' )
 
+	allelesDB = os.path.join( DBpath, 'blast', 'seroALLELES' )
 	porADB = os.path.join( DBpath, 'blast', 'porA' )
 	porA1DB = os.path.join( DBpath, 'blast', 'porA1' )
 	porA2DB = os.path.join( DBpath, 'blast', 'porA2' )
@@ -364,12 +379,16 @@ def main():
 		try:
 			msg('Updating "{}" ... '.format(porA1alleles))
 			update_db(porA1alleles, porA1URL)
+			makeblastDB(porA1DB, porA1alleles, 'prot')
 			msg('Updating "{}" ... '.format(porA2alleles))
 			update_db(porA2alleles, porA2URL)
+			makeblastDB(porA2DB, porA2alleles, 'prot')
 			msg('Updating "{}" ... '.format(fetalleles))
 			update_db(fetalleles, fetAURL)
+			makeblastDB(fetDB, fetalleles, 'prot')
 			msg('Updating "{}" ... '.format(porBalleles))
 			update_db(porBalleles, porBURL)
+			makeblastDB(porBDB, porBalleles, 'nucl')
 			msg('Updating "{}" ... '.format(fHbpalleles))
 			update_db(fHbpalleles, fHbpURL)
 			msg('Updating "{}" ... '.format(NHBAalleles))
@@ -397,11 +416,8 @@ def main():
 	check_db_files(porBalleles, porBURL)
 
 	# Setup BLASTDB
-	makeblastDB(allelesDB, seroALLELES, 'nucl')
-	makeblastDB(porA1DB, porA1alleles, 'prot')
-	makeblastDB(porA2DB, porA2alleles, 'prot')
-	makeblastDB(fetDB, fetalleles, 'prot')
-	makeblastDB(porBDB, porBalleles, 'nucl')
+	if not os.path.isfile(allelesDB):
+		makeblastDB(allelesDB, seroALLELES, 'nucl')
 
 	if args.bast or args.all:
 		check_primer_files(bxPRIMERS)
@@ -451,6 +467,9 @@ def main():
 	headers = ['SAMPLE_ID', 'SEROGROUP', 'ctrA', 'MLST', 'PorA', 'FetA', 'PorB', 'fHbp', 'NHBA', 'NadA', 'BAST']
 	print(sep.join(headers))
 	for f in args.fasta:
+		if check_fasta(f) != True:
+			print('{}\tERROR: Check file exists and is in FASTA nucleotide format.'.format(f))
+			continue
 		# Defaults
 		mlst = '-'
 		porACOUNT = '-'
