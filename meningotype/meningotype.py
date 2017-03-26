@@ -77,6 +77,12 @@ def err(*args, **kwargs):
 	msg(*args, **kwargs)
 	sys.exit(1);
 
+# Current version
+def current_version():
+	vfile = resource_filename(__name__, 'VERSION.txt')
+	with open(vfile) as f:
+		return f.read().rstrip()
+
 ############### Database functions #############################################
 
 # Update database files
@@ -295,6 +301,8 @@ def bxTYPE(f, bxPRIMERS, fHbpDB, NHBADB, NadADB):
 ########## Meningotype main ####################################################
 
 def main():
+	curr_vers = current_version()
+	
 	parser = argparse.ArgumentParser(
 		formatter_class=RawTextHelpFormatter,
 		description='In silico typing for Neisseria meningitidis\n'
@@ -319,11 +327,7 @@ def main():
 	parser.add_argument('--updatedb', action='store_true', default=False, help='update allele database from <pubmlst.org>')
 	parser.add_argument('--test', action='store_true', default=False, help='run test example')
 	parser.add_argument('--version', action='version', version=
-		'=====================================\n'
-		'%(prog)s v0.8-beta\n'
-		'Updated 25-Mar-2017 by Jason Kwong\n'
-		'Dependencies: isPcr, mlst, BLAST+, BioPython\n'
-		'=====================================')
+		'%(prog)s {}\n'.format(curr_vers))
 	args = parser.parse_args()
 
 	if args.db:

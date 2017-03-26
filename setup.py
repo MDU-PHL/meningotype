@@ -5,9 +5,12 @@ def readme():
 	with open('README.md') as f:
 		return f.read()
 
+def current_version():
+	with open('meningotype/VERSION.txt') as f:
+		return f.read().rstrip()
 
 setup(name='meningotype',
-	version='v0.8-beta',
+	version=current_version(),
 	description='In silico serotyping and finetyping (porA and fetA) of Neisseria meningitidis',
 	long_description=readme(),
 	classifiers=[
