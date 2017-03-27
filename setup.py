@@ -1,13 +1,14 @@
 from setuptools import setup
 
-
 def readme():
 	with open('README.md') as f:
 		return f.read()
 
 def current_version():
-	with open('meningotype/VERSION.txt') as f:
-		return f.read().rstrip()
+	with open('meningotype/meningotype.py') as f:
+		for index, line in enumerate(f):
+			if index == 3:
+				return line.split("'")[1]
 
 setup(name='meningotype',
 	version=current_version(),

@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # Script by Jason Kwong
 # In silico typing for Neisseria meningitidis
+current_version = '0.8-beta'
 
 # Use modern print function from python 3.x
 from __future__ import print_function
@@ -76,12 +77,6 @@ def msg(*args, **kwargs):
 def err(*args, **kwargs):
 	msg(*args, **kwargs)
 	sys.exit(1);
-
-# Current version
-def current_version():
-	vfile = resource_filename(__name__, 'VERSION.txt')
-	with open(vfile) as f:
-		return f.read().rstrip()
 
 ############### Database functions #############################################
 
@@ -342,7 +337,7 @@ def main():
 	parser.add_argument('--test', action='store_true', default=False, help='run test example')
 	parser.add_argument('--checkdeps', action='store_true', default=False, help='check dependencies are installed and exit')
 	parser.add_argument('--version', action='version', version=
-		'%(prog)s {}\n'.format(curr_vers))
+		'%(prog)s {}\n'.format(current_version))
 	args = parser.parse_args()
 
 	# Check dependencies
