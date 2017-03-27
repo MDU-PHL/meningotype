@@ -312,8 +312,6 @@ def bxTYPE(f, bxPRIMERS, fHbpDB, NHBADB, NadADB):
 ########## Meningotype main ####################################################
 
 def main():
-	curr_vers = current_version()
-	
 	parser = argparse.ArgumentParser(
 		formatter_class=RawTextHelpFormatter,
 		description='In silico typing for Neisseria meningitidis\n'
