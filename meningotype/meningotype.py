@@ -430,7 +430,7 @@ def main():
 	check_db_files(porBalleles, porBURL)
 
 	# Setup BLASTDB
-	if not os.path.isfile(allelesDB):
+	if not os.path.isfile(allelesDB + '.nin'):
 		makeblastDB(allelesDB, seroALLELES, 'nucl')
 
 	if args.bast or args.all:
@@ -439,11 +439,11 @@ def main():
 		check_db_files(NHBAalleles, NHBAURL)
 		check_db_files(NadAalleles, NadAURL)
 		check_db_files(BASTalleles, BASTURL)
-		if not os.path.isfile(fHbpDB):
+		if not os.path.isfile(fHbpDB + '.pin'):
 			makeblastDB(fHbpDB, fHbpalleles, 'prot')
-		if not os.path.isfile(NHBADB):
+		if not os.path.isfile(NHBADB + '.pin'):
 			makeblastDB(NHBADB, NHBAalleles, 'prot')
-		if not os.path.isfile(NadADB):
+		if not os.path.isfile(NadADB + '.pin'):
 			makeblastDB(NadADB, NadAalleles, 'prot')
 
 		# Import allele profiles as dictionary
