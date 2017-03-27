@@ -345,17 +345,25 @@ def main():
 		'%(prog)s {}\n'.format(curr_vers))
 	args = parser.parse_args()
 
-	dep_errors = 0
-	msg("\033[91mChecking dependencies:\033[0m")
-	for dep in ['isPcr', 'blastx', 'blastn', 'mlst']:
-		if check_deps.which(dep):
-			msg(' ........ '.join([dep, 'Found "{}"'.format(check_deps.which(dep)), '[OK]']))
-		else:
-			msg(' ........ '.join([dep, 'Not found - please check {} is installed and in the path.'.format(dep), '[ERROR]']))
-			dep_errors = dep_errors + 1
-	if dep_errors != 0 or args.checkdeps:
+	# Check dependencies
+	dependencies = ['isPcr', 'blastn', 'blastx', 'mlst']
+	if args.checkdeps:
+		msg("\033[91mChecking dependencies:\033[0m")
+		for dep in dependencies:
+			if check_deps.which(dep):
+				msg(' ....... '.join([dep, '\tFound "{}"'.format(check_deps.which(dep)), '\t[OK]']))
+			else:
+				msg(' ........ '.join([dep, 'Not found - please check {} is installed and in the path.'.format(dep), '[ERROR]']))
 		sys.exit(0)
+	dep_errors = 0
+	for dep in dependencies:
+		if not check_deps.which(dep):
+			msg('ERROR: {} not found - please check it is installed and in the path.'.format(dep))
+			dep_errors = dep_errors + 1
+	if dep_errors != 0:
+		sys.exit(1)
 
+	# Set path for database files
 	if args.db:
 		DBpath = str(args.db).rstrip('/')
 	else:
@@ -416,7 +424,7 @@ def main():
 			err('ERROR: Unable to update DB at "{}".\nCheck DB directory permissions and connection to http://pubmlst.org.'.format(DBpath))
 		except HTTPError:
 			err('ERROR: Unable to update DB at "{}". Check connection to http://pubmlst.org.'.format(DBpath))
-		sys.exit(0)
+		sys.exit(1)
 
 	# Check paths and files
 	if not os.path.exists(DBpath):
