@@ -23,7 +23,7 @@ from Bio.Blast.Applications import NcbiblastnCommandline, NcbiblastxCommandline
 from pkg_resources import resource_string, resource_filename
 
 # Import local modules
-import nmen, menwy, ctrA, porB, finetype
+import nmen, menwy, ctrA, porB, finetype, check_deps
 
 ###### Script globals ##########################################################
 
@@ -45,7 +45,6 @@ fHbpURL = 'http://rest.pubmlst.org/db/pubmlst_neisseria_seqdef/loci/fHbp_peptide
 NHBAURL = 'http://rest.pubmlst.org/db/pubmlst_neisseria_seqdef/loci/NHBA_peptide/alleles_fasta'
 NadAURL = 'http://rest.pubmlst.org/db/pubmlst_neisseria_seqdef/loci/NadA_peptide/alleles_fasta'
 BASTURL = 'http://rest.pubmlst.org/db/pubmlst_neisseria_seqdef/schemes/53/profiles_csv'
-
 
 # allele sizes and serotype dictionary
 alleleSIZE = {'A':92, 'B':169, 'C':74, 'W':129, 'X':65, 'Y':146}
@@ -341,9 +340,21 @@ def main():
 	parser.add_argument('--printseq', metavar='DIR', help='specify directory to save extracted porA/fetA/porB or BAST allele sequences (default=off)')
 	parser.add_argument('--updatedb', action='store_true', default=False, help='update allele database from <pubmlst.org>')
 	parser.add_argument('--test', action='store_true', default=False, help='run test example')
+	parser.add_argument('--checkdeps', action='store_true', default=False, help='check dependencies are installed and exit')
 	parser.add_argument('--version', action='version', version=
 		'%(prog)s {}\n'.format(curr_vers))
 	args = parser.parse_args()
+
+	dep_errors = 0
+	msg("\033[91mChecking dependencies:\033[0m")
+	for dep in ['isPcr', 'blastx', 'blastn', 'mlst']:
+		if check_deps.which(dep):
+			msg(' ........ '.join([dep, 'Found "{}"'.format(check_deps.which(dep)), '[OK]']))
+		else:
+			msg(' ........ '.join([dep, 'Not found - please check {} is installed and in the path.'.format(dep), '[ERROR]']))
+			dep_errors = dep_errors + 1
+	if dep_errors != 0 or args.checkdeps:
+		sys.exit(0)
 
 	if args.db:
 		DBpath = str(args.db).rstrip('/')
@@ -391,10 +402,13 @@ def main():
 			makeblastDB(porBDB, porBalleles, 'nucl')
 			msg('Updating "{}" ... '.format(fHbpalleles))
 			update_db(fHbpalleles, fHbpURL)
+			makeblastDB(fHbpDB, fHbpalleles, 'prot')
 			msg('Updating "{}" ... '.format(NHBAalleles))
 			update_db(NHBAalleles, NHBAURL)
+			makeblastDB(NHBADB, NHBAalleles, 'prot')
 			msg('Updating "{}" ... '.format(NadAalleles))
 			update_db(NadAalleles, NadAURL)
+			makeblastDB(NadADB, NadAalleles, 'prot')
 			msg('Updating "{}" ... '.format(BASTalleles))
 			update_db(BASTalleles, BASTURL)
 			msg('Done.')
