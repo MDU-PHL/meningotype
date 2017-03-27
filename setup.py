@@ -7,7 +7,7 @@ def readme():
 def current_version():
 	with open('meningotype/meningotype.py') as f:
 		for index, line in enumerate(f):
-			if index == 3:
+			if index == 8:
 				return line.split("'")[1]
 
 setup(name='meningotype',

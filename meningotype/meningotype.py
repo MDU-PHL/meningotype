@@ -1,10 +1,12 @@
 #!/usr/bin/env python
 # Script by Jason Kwong
 # In silico typing for Neisseria meningitidis
-current_version = '0.8-beta'
 
 # Use modern print function from python 3.x
 from __future__ import print_function
+
+# Version
+current_version = '0.8-beta'
 
 # Usage
 import argparse
