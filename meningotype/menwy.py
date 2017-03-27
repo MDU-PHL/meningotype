@@ -58,7 +58,7 @@ def menwy(f, p):
 		start = 919 - synG_START
 		EX7E_SEQ = synG_SEQ[918:945]
 		EX7E = str(EX7E_SEQ.translate())
-		if EX7E in seroDICT:
+		if EX7E[3] in seroDICT:
 			serogroup = seroDICT[EX7E[3]]
 #		else:
 #			serogroup = 'unk'
