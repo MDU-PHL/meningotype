@@ -1,2 +1,3 @@
 graft meningotype/db
 graft meningotype/test
+graft meningotype/VERSION.txt
