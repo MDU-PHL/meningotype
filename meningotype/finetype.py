@@ -32,13 +32,13 @@ def err(*args, **kwargs):
 	sys.exit(1);
 
 # BLAST
-def porBBLAST(f, blastdb):
+def porBBLAST(f, blastdb, cpus):
 	porB = 'new'
 	blast_qseqid = '-'
 	blast_pident = '-'
 	blast_cov = '<99'
 	porBRECR = None
-	fBLAST = NcbiblastnCommandline(query=f, db=blastdb, outfmt="'6 qseqid sseqid pident length sstrand qstart qend sstart send slen'", dust='no', culling_limit=1)
+	fBLAST = NcbiblastnCommandline(query=f, db=blastdb, outfmt="'6 qseqid sseqid pident length sstrand qstart qend sstart send slen'", dust='no', culling_limit=1, num_threads=cpus)
 	stdout, stderr = fBLAST()
 	blastOUT = stdout.split('\t')
 	if len(blastOUT) == 10:
@@ -82,6 +82,7 @@ def main():
 	parser.add_argument('fasta', metavar='FASTA', nargs='+', help='FASTA file to search (required)')
 	parser.add_argument('--db', metavar='DB', help='specify custom directory containing allele databases')
 	parser.add_argument('--printseq', action='store_true', help='save porB allele sequences to file (default=off)')
+	parser.add_argument('--cpus', metavar='CPUS', default=1, help='number of cpus to use in BLAST search (default=1)')
 	parser.add_argument('--version', action='version', version=
 		'=====================================\n'
 		'%(prog)s v0.1\n'
@@ -89,6 +90,7 @@ def main():
 		'Dependencies: Python 2.x, BioPython, BLAST\n'
 		'=====================================')
 	args = parser.parse_args()
+	cpus = int(args.cpus)
 	
 	if args.db:
 		DBpath = str(args.db).rstrip('/')
@@ -101,7 +103,7 @@ def main():
 	porBSEQS = []
 	print('\t'.join(['SAMPLE_ID', 'CONTIG', 'PorB', '%ID', 'COV']))
 	for f in args.fasta:
-		result = porBBLAST(f, porBDB)
+		result = porBBLAST(f, porBDB, cpus)
 		print('\t'.join(result[:-1]))
 		porBSEQS.append(result[5])
 

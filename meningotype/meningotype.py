@@ -121,13 +121,13 @@ def makeblastDB(db, infile, dbtype):
 
 ############### Main serotyping functions ######################################
 
-def seroTYPE(f, seroprimers, allelesdb):
+def seroTYPE(f, seroprimers, allelesdb, cpus):
 	seroCOUNT = []				# Setup list in case there are mixed/multiple hits
 	proc = subprocess.Popen(['isPcr', f, seroprimers, 'stdout', '-minPerfect=10'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 	PCRout = proc.communicate()[0]
 	if not PCRout:
 		sero = None
-		seroBLAST = NcbiblastnCommandline(query=f, db=allelesdb, task='blastn', perc_identity=90, evalue='1e-20', outfmt='"6 sseqid pident length"', culling_limit='1')
+		seroBLAST = NcbiblastnCommandline(query=f, db=allelesdb, task='blastn', perc_identity=90, evalue='1e-20', outfmt='"6 sseqid pident length"', culling_limit='1', num_threads=cpus)
 		stdout, stderr = seroBLAST()
 		lenMATCH = 0
 		line = stdout.split('\n')[0]
@@ -169,10 +169,10 @@ def nm_mlst(f):
 	PCRout = proc.communicate()[0]
 	return PCRout
 
-def finetypeBLAST(s, db):
+def finetypeBLAST(s, db, cpus):
 	ft = None
 	allele = None
-	ftBLAST = NcbiblastxCommandline(query='-', db=db, outfmt='"6 qseqid sseqid pident length slen gaps nident evalue"', seg='no', query_gencode='11', matrix='PAM30', ungapped='true', comp_based_stats='0', evalue='1e-2')		# blastx command to fix finding short sequences
+	ftBLAST = NcbiblastxCommandline(query='-', db=db, outfmt='"6 qseqid sseqid pident length slen gaps nident evalue"', seg='no', query_gencode='11', matrix='PAM30', ungapped='true', comp_based_stats='0', evalue='1e-2', num_threads=cpus)		# blastx command to fix finding short sequences
 	stdout, stderr = ftBLAST(stdin=s.format('fasta'))
 	if stdout:
 		BLASTout = stdout.split('\n')
@@ -190,17 +190,16 @@ def finetypeBLAST(s, db):
 			ft = 'new'
 	return str(ft)
 
-def porBTYPE(f, blastdb):
-	porB_result = finetype.porBBLAST(f, blastdb)
+def porBTYPE(f, blastdb, cpus):
+	porB_result = finetype.porBBLAST(f, blastdb, cpus)
 	porBCOUNT = porB_result[2]
 	porBSEQS.append(porB_result[5])
 	return porBCOUNT
 
-def bxtypeBLAST(s, db):
+def bxtypeBLAST(s, db, cpus):
 	bx = None
 	allele = None
-	bxBLAST = NcbiblastxCommandline(query='-', db=db, outfmt='"6 qseqid sseqid pident length slen gaps nident evalue"', seg='no', culling_limit='1', 
-evalue='1e-100', query_gencode='11')
+	bxBLAST = NcbiblastxCommandline(query='-', db=db, outfmt='"6 qseqid sseqid pident length slen gaps nident evalue"', seg='no', culling_limit='1', evalue='1e-100', query_gencode='11', num_threads=cpus)
 	stdout, stderr = bxBLAST(stdin=s.format('fasta'))
 	if stdout:
 		BLASTout = stdout.split('\n')
@@ -220,7 +219,7 @@ evalue='1e-100', query_gencode='11')
 		bx = '0'
 	return str(bx)
 
-def fineTYPE(f, finetypeprimers, poradb, pora1db, pora2db, fetdb):
+def fineTYPE(f, finetypeprimers, poradb, pora1db, pora2db, fetdb, cpus):
 	porACOUNT = []							# Setup list in case there are mixed/multiple hits
 	fetACOUNT = []
 	global porASEQS
@@ -235,27 +234,27 @@ def fineTYPE(f, finetypeprimers, poradb, pora1db, pora2db, fetdb):
 		ampID = ampFILE[1]
 		ampLEN = ampFILE[2]					# Need to check amplicon length to exclude double hits?
 		if ampID == 'porA':
-			A1 = finetypeBLAST(amplicon, pora1db)
-			A2 = finetypeBLAST(amplicon, pora2db)
+			A1 = finetypeBLAST(amplicon, pora1db, cpus)
+			A2 = finetypeBLAST(amplicon, pora2db, cpus)
 			porA = A1 + ',' + A2
 			porACOUNT.append(porA)
 			porASEQ = amplicon.seq.upper()
 			porARECR = SeqRecord(porASEQ, id=f, description='PorA')
 			porASEQS.append(porARECR)
 		if ampID == 'fetA':
-			fet = finetypeBLAST(amplicon, fetdb)
+			fet = finetypeBLAST(amplicon, fetdb, cpus)
 			fetACOUNT.append(fet)
 			fetASEQ = amplicon.seq.upper()
 			fetARECR = SeqRecord(fetASEQ, id=f, description='FetA')
 			fetASEQS.append(fetARECR)
 	if len(porACOUNT) == 0:
-		porseqBLAST = NcbiblastnCommandline(query=f, db=poradb, perc_identity=90, outfmt='"6 qseq"', culling_limit='1')
+		porseqBLAST = NcbiblastnCommandline(query=f, db=poradb, perc_identity=90, outfmt='"6 qseq"', culling_limit='1', num_threads=cpus)
 		stdout, stderr = porseqBLAST()
 		if stdout:
 			porAseq = Seq(stdout.strip())
 			porArec = SeqRecord(porAseq, id=f, description='PorA')
-			A1 = finetypeBLAST(porArec, pora1db)
-			A2 = finetypeBLAST(porArec, pora2db)
+			A1 = finetypeBLAST(porArec, pora1db, cpus)
+			A2 = finetypeBLAST(porArec, pora2db, cpus)
 			porA = A1 + ',' + A2
 			porACOUNT.append(porA)
 			porASEQ = amplicon.seq.upper()
@@ -267,7 +266,7 @@ def fineTYPE(f, finetypeprimers, poradb, pora1db, pora2db, fetdb):
 		fetACOUNT.append('-')
 	return porACOUNT, fetACOUNT
 
-def bxTYPE(f, bxPRIMERS, fHbpDB, NHBADB, NadADB):
+def bxTYPE(f, bxPRIMERS, fHbpDB, NHBADB, NadADB, cpus):
 	fHbpCOUNT = []							# Setup list in case there are mixed/multiple hits
 	NHBACOUNT = []
 	NadACOUNT = []
@@ -284,19 +283,19 @@ def bxTYPE(f, bxPRIMERS, fHbpDB, NHBADB, NadADB):
 		ampID = ampFILE[1]
 		ampLEN = ampFILE[2]					# Need to check amplicon length to exclude double hits?
 		if ampID == 'fHbp':
-			fHbp = bxtypeBLAST(amplicon, fHbpDB)
+			fHbp = bxtypeBLAST(amplicon, fHbpDB, cpus)
 			fHbpCOUNT.append(fHbp)
 			fHbpSEQ = amplicon.seq.upper()
 			fHbpRECR = SeqRecord(fHbpSEQ, id=f, description='fHbp')
 			fHbpSEQS.append(fHbpRECR)
 		if ampID == 'NHBA':
-			NHBA = bxtypeBLAST(amplicon, NHBADB)
+			NHBA = bxtypeBLAST(amplicon, NHBADB, cpus)
 			NHBACOUNT.append(NHBA)
 			NHBASEQ = amplicon.seq.upper()
 			NHBARECR = SeqRecord(NHBASEQ, id=f, description='NHBA')
 			NHBASEQS.append(NHBARECR)
 		if ampID == 'NadA':
-			NadA = bxtypeBLAST(amplicon, NadADB)
+			NadA = bxtypeBLAST(amplicon, NadADB, cpus)
 			NadACOUNT.append(NadA)
 			NadASEQ = amplicon.seq.upper()
 			NadARECR = SeqRecord(NadASEQ, id=f, description='NadA')
@@ -333,12 +332,14 @@ def main():
 		'directory must contain database files: "FetA_VR.fas", "PorA_VR1.fas", "PorA_VR2.fas"\n'
 		'for Bexsero typing: "fHbp_peptide.fas", "NHBA_peptide.fas", "NadA_peptide.fas", "BASTalleles.txt"')
 	parser.add_argument('--printseq', metavar='DIR', help='specify directory to save extracted porA/fetA/porB or BAST allele sequences (default=off)')
+	parser.add_argument('--cpus', metavar='CPUS', default=1, help='number of cpus to use in BLAST search (default=1)')
 	parser.add_argument('--updatedb', action='store_true', default=False, help='update allele database from <pubmlst.org>')
 	parser.add_argument('--test', action='store_true', default=False, help='run test example')
 	parser.add_argument('--checkdeps', action='store_true', default=False, help='check dependencies are installed and exit')
 	parser.add_argument('--version', action='version', version=
 		'%(prog)s {}\n'.format(current_version))
 	args = parser.parse_args()
+	cpus = int(args.cpus)
 
 	# Check dependencies
 	dependencies = ['isPcr', 'blastn', 'blastx', 'mlst']
@@ -501,18 +502,18 @@ def main():
 		NadACOUNT = '-'
 		bxtype = '-'
 		# Standard run = serotype + ctrA
-		seroCOUNT = '/'.join(seroTYPE(f, seroPRIMERS, allelesDB))
+		seroCOUNT = '/'.join(seroTYPE(f, seroPRIMERS, allelesDB, cpus))
 		ctrA_out = ctrA.ctrA_PCR(f, False, DBpath)
 		ctrACOUNT = ctrA_out.split('\t')[1]
 		# Optional typing
 		if args.porB or args.all:
-			porBCOUNT = porBTYPE(f, porBDB)
+			porBCOUNT = porBTYPE(f, porBDB, cpus)
 		if args.mlst or args.all:
 			mlst = nm_mlst(f).split('\t')[11]
 		# BAST
 		if args.bast or args.all:
-			ftRESULTS = fineTYPE(f, finetypePRIMERS, porADB, porA1DB, porA2DB, fetDB)
-			bxRESULTS = bxTYPE(f, bxPRIMERS, fHbpDB, NHBADB, NadADB)
+			ftRESULTS = fineTYPE(f, finetypePRIMERS, porADB, porA1DB, porA2DB, fetDB, cpus)
+			bxRESULTS = bxTYPE(f, bxPRIMERS, fHbpDB, NHBADB, NadADB, cpus)
 			porACOUNT = '/'.join(ftRESULTS[0])
 			fetACOUNT = '/'.join(ftRESULTS[1])
 			fHbpCOUNT = '/'.join(bxRESULTS[0])
@@ -523,7 +524,7 @@ def main():
 				bxtype = BAST[bxallele]
 		# Finetyping (porA, fetA, porB)
 		elif args.finetype:
-			ftRESULTS = fineTYPE(f, finetypePRIMERS, porADB, porA1DB, porA2DB, fetDB)
+			ftRESULTS = fineTYPE(f, finetypePRIMERS, porADB, porA1DB, porA2DB, fetDB, cpus)
 			porACOUNT = '/'.join(ftRESULTS[0])
 			fetACOUNT = '/'.join(ftRESULTS[1])
 
