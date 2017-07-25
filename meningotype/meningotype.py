@@ -6,7 +6,7 @@
 from __future__ import print_function
 
 # Version
-current_version = '0.8-beta'
+current_version = '0.8.1-beta'
 
 # Usage
 import argparse
@@ -167,7 +167,7 @@ def seroWY(f, sero):
 def nm_mlst(f):
 	proc = subprocess.Popen(['mlst', '--scheme=neisseria', '--quiet', f], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 	PCRout = proc.communicate()[0]
-	return PCRout
+	return PCRout.split('\t')[2]
 
 def finetypeBLAST(s, db, cpus):
 	ft = None
@@ -509,7 +509,7 @@ def main():
 		if args.porB or args.all:
 			porBCOUNT = porBTYPE(f, porBDB, cpus)
 		if args.mlst or args.all:
-			mlst = nm_mlst(f).split('\t')[11]
+			mlst = nm_mlst(f)
 		# BAST
 		if args.bast or args.all:
 			ftRESULTS = fineTYPE(f, finetypePRIMERS, porADB, porA1DB, porA2DB, fetDB, cpus)
