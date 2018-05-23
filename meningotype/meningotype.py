@@ -6,7 +6,7 @@
 from __future__ import print_function
 
 # Version
-current_version = '0.8.1-beta'
+current_version = '0.8.2-beta'
 
 # Usage
 import argparse
