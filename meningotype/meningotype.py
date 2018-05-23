@@ -420,7 +420,7 @@ def main():
 			err('ERROR: Unable to update DB at "{}".\nCheck DB directory permissions and connection to http://pubmlst.org.'.format(DBpath))
 		except HTTPError:
 			err('ERROR: Unable to update DB at "{}". Check connection to http://pubmlst.org.'.format(DBpath))
-		sys.exit(1)
+		sys.exit(0)
 
 	# Check paths and files
 	if not os.path.exists(DBpath):
