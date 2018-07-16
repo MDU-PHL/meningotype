@@ -50,8 +50,7 @@ The simplest way to install dependencies is to use the Brew (MacOS) or
 Linuxbrew (Linux) packaging system. 
 
 ```
-$ brew tap homebrew/science
-$ brew tap tseemann/homebrew-bioinformatics-linux
+$ brew tap brewsci/bio
 $ brew install ispcr blast mlst
 ```
 
