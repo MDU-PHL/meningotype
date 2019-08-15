@@ -12,7 +12,7 @@ import sys
 import os
 import subprocess
 from subprocess import Popen
-import StringIO
+from io import StringIO
 from Bio import SeqIO
 from Bio.Blast.Applications import NcbiblastnCommandline
 from pkg_resources import resource_string, resource_filename
@@ -34,7 +34,7 @@ def ctrA_PCR(f, p, dbpath):
 	resultBLAST = '-'
 	resultPCR = '-'
 	proc = subprocess.Popen(['isPcr', f, ctrAPRIMERS, 'stdout', '-minPerfect=10'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-	PCRout = proc.communicate()[0]
+	PCRout = proc.communicate()[0].decode('UTF-8')
 	if not PCRout:
 		ctrABLAST = NcbiblastnCommandline(query=f, db=ctrADB, task='blastn', perc_identity=90, evalue='1e-20', outfmt='"6 sseqid pident length"', culling_limit='1')
 		stdout, stderr = ctrABLAST()
@@ -44,7 +44,7 @@ def ctrA_PCR(f, p, dbpath):
 			amp = line.split('\t')
 			resultBLAST = amp[1]		# Currently only takes top/first BLAST hit
 	else:
-		alleleSEQ = StringIO.StringIO()
+		alleleSEQ = StringIO()
 		alleleSEQ.write(PCRout)
 		alleleSEQ.seek(0)
 		for amplicon in SeqIO.parse(alleleSEQ, "fasta"):

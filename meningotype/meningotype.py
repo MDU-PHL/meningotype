@@ -6,7 +6,7 @@
 from __future__ import print_function
 
 # Version
-current_version = '0.8.2-beta'
+current_version = '0.8.3'
 
 # Usage
 import argparse
@@ -15,7 +15,7 @@ import sys
 import os
 import os.path
 import re
-import StringIO
+from io import StringIO
 import urllib
 import subprocess
 from subprocess import Popen
@@ -26,7 +26,7 @@ from Bio.Blast.Applications import NcbiblastnCommandline, NcbiblastxCommandline
 from pkg_resources import resource_string, resource_filename
 
 # Import local modules
-import nmen, menwy, ctrA, porB, finetype, check_deps
+from . import nmen, menwy, ctrA, porB, finetype, check_deps
 
 ###### Script globals ##########################################################
 
@@ -124,7 +124,7 @@ def makeblastDB(db, infile, dbtype):
 def seroTYPE(f, seroprimers, allelesdb, cpus):
 	seroCOUNT = []				# Setup list in case there are mixed/multiple hits
 	proc = subprocess.Popen(['isPcr', f, seroprimers, 'stdout', '-minPerfect=10'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-	PCRout = proc.communicate()[0]
+	PCRout = proc.communicate()[0].decode('UTF-8')
 	if not PCRout:
 		sero = None
 		seroBLAST = NcbiblastnCommandline(query=f, db=allelesdb, task='blastn', perc_identity=90, evalue='1e-20', outfmt='"6 sseqid pident length"', culling_limit='1', num_threads=cpus)
@@ -140,7 +140,7 @@ def seroTYPE(f, seroprimers, allelesdb, cpus):
 				sero = seroWY(f, sero)
 			seroCOUNT.append(sero)
 	else:
-		alleleSEQ = StringIO.StringIO()
+		alleleSEQ = StringIO()
 		alleleSEQ.write(PCRout)
 		alleleSEQ.seek(0)
 		for amplicon in SeqIO.parse(alleleSEQ, "fasta"):
@@ -166,7 +166,7 @@ def seroWY(f, sero):
 
 def nm_mlst(f):
 	proc = subprocess.Popen(['mlst', '--scheme=neisseria', '--quiet', f], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-	PCRout = proc.communicate()[0]
+	PCRout = proc.communicate()[0].decode('UTF-8')
 	return PCRout.split('\t')[2]
 
 def finetypeBLAST(s, db, cpus):
@@ -225,8 +225,8 @@ def fineTYPE(f, finetypeprimers, poradb, pora1db, pora2db, fetdb, cpus):
 	global porASEQS
 	global fetASEQS
 	proc = subprocess.Popen(['isPcr', f, finetypeprimers, 'stdout', '-maxSize=800', '-tileSize=10', '-minPerfect=8', '-stepSize=3'], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
-	PCRout = proc.communicate()[0]
-	alleleSEQ = StringIO.StringIO()
+	PCRout = proc.communicate()[0].decode('UTF-8')
+	alleleSEQ = StringIO()
 	alleleSEQ.write(PCRout)
 	alleleSEQ.seek(0)
 	for amplicon in SeqIO.parse(alleleSEQ, "fasta"):
@@ -274,8 +274,8 @@ def bxTYPE(f, bxPRIMERS, fHbpDB, NHBADB, NadADB, cpus):
 	global NHBASEQS
 	global NadASEQS
 	proc = subprocess.Popen(['isPcr', f, bxPRIMERS, 'stdout', '-maxSize=3000', '-tileSize=7', '-minPerfect=8', '-stepSize=3'], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
-	PCRout = proc.communicate()[0]
-	alleleSEQ = StringIO.StringIO()
+	PCRout = proc.communicate()[0].decode('UTF-8')
+	alleleSEQ = StringIO()
 	alleleSEQ.write(PCRout)
 	alleleSEQ.seek(0)
 	for amplicon in SeqIO.parse(alleleSEQ, "fasta"):
