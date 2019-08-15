@@ -38,7 +38,7 @@ def porBBLAST(f, blastdb, cpus):
 	blast_pident = '-'
 	blast_cov = '<99'
 	porBRECR = None
-	fBLAST = NcbiblastnCommandline(query=f, db=blastdb, outfmt="'6 qseqid sseqid pident length sstrand qstart qend sstart send slen'", dust='no', culling_limit=1, num_threads=cpus)
+	fBLAST = NcbiblastnCommandline(query=f, db=blastdb, outfmt="6 qseqid sseqid pident length sstrand qstart qend sstart send slen", dust='no', culling_limit=1, num_threads=cpus)
 	stdout, stderr = fBLAST()
 	blastOUT = stdout.split('\t')
 	if len(blastOUT) == 10:
