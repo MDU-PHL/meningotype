@@ -10,7 +10,7 @@ import argparse
 from argparse import RawTextHelpFormatter
 import sys
 import os
-import StringIO
+from io import StringIO
 from Bio import SeqIO
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
