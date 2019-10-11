@@ -15,7 +15,7 @@ import sys
 import os
 import os.path
 import re
-import StringIO
+
 import urllib
 import subprocess
 from subprocess import Popen
@@ -24,6 +24,7 @@ from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
 from Bio.Blast.Applications import NcbiblastnCommandline, NcbiblastxCommandline
 from pkg_resources import resource_string, resource_filename
+from io import StringIO
 
 # Import local modules
 import nmen, menwy, ctrA, porB, finetype, check_deps

@@ -12,7 +12,7 @@ import sys
 import os
 import subprocess
 from subprocess import Popen
-import StringIO
+from io import StringIO
 from Bio import SeqIO
 from Bio.Blast.Applications import NcbiblastnCommandline
 from pkg_resources import resource_string, resource_filename
