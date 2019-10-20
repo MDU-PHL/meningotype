@@ -27,7 +27,8 @@ from pkg_resources import resource_string, resource_filename
 from io import StringIO
 
 # Import local modules
-import nmen, menwy, ctrA, porB, finetype, check_deps
+import nmen, menwy, ctrA, porB, finetype, check_deps,verification
+
 
 ###### Script globals ##########################################################
 
@@ -309,6 +310,9 @@ def bxTYPE(f, bxPRIMERS, fHbpDB, NHBADB, NadADB, cpus):
 		NadACOUNT.append('0')
 	return set(fHbpCOUNT), set(NHBACOUNT), set(NadACOUNT)
 
+def run_verification(verification_path, verification_type):
+	v = verification.Verification(verification_path = verification_path, reason = verification_type)
+	v.verify()
 ########## Meningotype main ####################################################
 
 def main():
@@ -339,9 +343,24 @@ def main():
 	parser.add_argument('--checkdeps', action='store_true', default=False, help='check dependencies are installed and exit')
 	parser.add_argument('--version', action='version', version=
 		'%(prog)s {}\n'.format(current_version))
+	parser.add_argument('--verify', action = 'store_true', help= 'Run MDU verification')
+	parser.add_argument('--verification_path', default='', help='Path to the directory where verification data is stored and will be run. REQUIRED if --verify is set.')
+	parser.add_argument('--verification_type', default='', help='Reason for verification - mupdate if meningotype updated, dupdate if databse(s) updated or aupdate if changing assembler.')
 	args = parser.parse_args()
 	cpus = int(args.cpus)
 
+	# run verification
+	if args.verify:
+		if args.verification_path == '':
+			msg(f"You are trying to run a verification, please supply the path to verification directory")
+			raise SystemExit
+		elif args.verification_type == '':
+			msg(f"You are trying to run a verification, you must specify a reason for verification. Check help and try again.")
+			raise SystemExit
+		else:
+			msg('Running verification of meningotype.')
+			run_verification(verification_path = args.verification_path, verification_type = args.verification_type)
+			sys.exit(0)
 	# Check dependencies
 	dependencies = ['isPcr', 'blastn', 'blastx', 'mlst']
 	if args.checkdeps:
