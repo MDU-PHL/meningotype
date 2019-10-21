@@ -25,8 +25,9 @@ def seqBLAST(f):
 	DBpath = resource_filename(__name__, 'db')
 	blastdb = os.path.join(DBpath, 'blast', 'synG')
 	# BLAST
-	fBLAST = NcbiblastnCommandline(query=f, db=blastdb, outfmt="'6 qseqid sstrand qstart qend sstart send slen qseq'", dust='no', culling_limit=1)
+	fBLAST = NcbiblastnCommandline(query=f, db=blastdb, outfmt=f"6 qseqid sstrand qstart qend sstart send slen qseq", dust='no', culling_limit=1)
 	stdout, stderr = fBLAST()
+
 	blastOUT = stdout.split('\t')
 	if len(blastOUT) == 8:
 		blast_sstrand = blastOUT[1]

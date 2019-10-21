@@ -43,7 +43,7 @@ class Verification:
         run meningotyper
         '''
         sed_cmd = self.get_sed_cmd()
-        cmd = f"meningotype --all {self.assemblies}/*.fa {sed_cmd} > {self.reverification_path}"
+        cmd = f"python3 meningotype/meningotype.py --all {self.assemblies}/*.fa {sed_cmd} > {self.reverification_path}"
         print(cmd)
         p = subprocess.run(cmd, shell = True, capture_output = True)
         if p.returncode == 0:
