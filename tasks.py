@@ -10,7 +10,7 @@ inv --list
 '''
 
 from invoke import task
-import subprocess, datetime
+import subprocess, datetime, yaml, toml
 
 from mdu_writer.verifications.meningotype_write import WriteMenigotypeVerify
 
@@ -33,5 +33,12 @@ def build_container(c):
 @task
 def run_verification(c):
     config = toml.load("config.toml")
-    c.run(f"python3 meningotype/meningotype.py --verify --verification_path {config['verification_path']} --verification_type {config['verification_type']}")
+    if 'verification_path' in config and 'verification_type' in config:
+        c.run(f"python3 meningotype/meningotype.py --verify --verification_path {config['verification_path']} --verification_type {config['verification_type']}")
+    else:
+        print("Please provide a path for verification data and a verification type.")
+@task
+def write_verification(c, config_path):
+    write = WriteMenigotypeVerify(config_path)
+    write.write_doc()
 

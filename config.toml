@@ -1,3 +1,5 @@
 author = 'Anders Goncalves da Silva'
 version = '0.8.2-beta'
 mlst_version = 'latest'
+verification_path = '/home/khhor/dev/VALIDATION/MMS144/'
+verification_type = 'mupdate'
