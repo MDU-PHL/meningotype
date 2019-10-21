@@ -25,9 +25,12 @@ def update_singularity(c):
 @task
 def build_container(c):
     config = toml.load("config.toml")
+    date = datetime.datetime.today().strftime("%d_%m_%y")
+    archive_dir = f"{config['archive_dir']}/{config['version']}_DB{date}"
     print("Building container")
     c.sudo(f'singularity build salmonella_typing.simg Singularity')
-    c.sudo(f"mv {config['container_dir']}/salmonella_typing.simg {config['archive_dir']}") #in preparation for a directory of contianers in the config file
+    c.sudo(f"mkdir {archive_dir}") # make archive directory for this image
+    c.sudo(f"cp {config['container_dir']}/salmonella_typing.simg {archive_dir}") #in preparation for a directory of contianers in the config file
     c.sudo(f"mv salmonella_typing.simg {config['container_dir']}") #in preparation for a directory of contianers in the config file
 
 @task
