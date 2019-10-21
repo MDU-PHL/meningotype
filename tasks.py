@@ -12,7 +12,7 @@ inv --list
 from invoke import task
 import subprocess, datetime, yaml, toml
 
-from mdu_writer.verifications.meningotype_write import WriteMenigotypeVerify
+# from mdu_writer.verifications.meningotype_write import WriteMenigotypeVerify
 
 @task
 def update_singularity(c):
@@ -30,8 +30,8 @@ def build_container(c):
     print("Building container")
     c.sudo(f'singularity build salmonella_typing.simg Singularity')
     c.sudo(f"mkdir {archive_dir}") # make archive directory for this image
-    c.sudo(f"cp {config['container_dir']}/salmonella_typing.simg {archive_dir}") #in preparation for a directory of contianers in the config file
-    c.sudo(f"mv salmonella_typing.simg {config['container_dir']}") #in preparation for a directory of contianers in the config file
+    c.sudo(f"cp {config['container_dir']}/salmonella_typing.simg {archive_dir}") #copy to the archive directory
+    c.sudo(f"mv salmonella_typing.simg {config['container_dir']}") #move to the execution directory
 
 @task
 def run_verification(c):
@@ -44,4 +44,10 @@ def run_verification(c):
 def write_verification(c, config_path):
     write = WriteMenigotypeVerify(config_path)
     write.write_doc()
+
+@task
+def push_verification(c):
+    config = toml.load("config.toml")
+    cfg_path = config['verification_path']
+    c.run(f"cd {cfg_path}/meningotype.wiki && git add Validation-Report.md && git status && git commit -m 'verification' && git push")
 
