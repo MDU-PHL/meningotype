@@ -19,7 +19,7 @@ from Bio.Blast import NCBIXML
 from pkg_resources import resource_string, resource_filename
 
 # Import local modules
-import nmen
+from . import nmen
 
 # Standard functions
 # Log a message to stderr

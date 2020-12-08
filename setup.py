@@ -34,13 +34,6 @@ setup(name='meningotype',
 	],
 	test_suite='nose.collector',
 	tests_require=[],
-	console_scripts=[
-		'meningotype/nmen.py',
-		'meningotype/ctrA.py',
-		'meningotype/menwy.py',
-		'meningotype/finetype.py',
-		'meningotype/porB.py',
-	],
 	entry_points={
 		'console_scripts': ['meningotype=meningotype.meningotype:main'],
 	},
