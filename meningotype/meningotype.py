@@ -15,7 +15,6 @@ import sys
 import os
 import os.path
 import re
-from io import StringIO
 import urllib
 import subprocess
 from subprocess import Popen
@@ -24,10 +23,11 @@ from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
 from Bio.Blast.Applications import NcbiblastnCommandline, NcbiblastxCommandline
 from pkg_resources import resource_string, resource_filename
-
+from io import StringIO
+from Bio.Seq import Seq
+from Bio.SeqRecord import SeqRecord
 # Import local modules
 from . import nmen, menwy, ctrA, porB, finetype, check_deps
-
 ###### Script globals ##########################################################
 
 # URLs to update database files (OLD)
@@ -144,6 +144,7 @@ def seroTYPE(f, seroprimers, allelesdb, cpus):
 		alleleSEQ.write(PCRout)
 		alleleSEQ.seek(0)
 		for amplicon in SeqIO.parse(alleleSEQ, "fasta"):
+			
 			product = amplicon.description.split()
 			ampID = product[1]
 			ampLEN = int(product[2][:-2])
@@ -154,6 +155,7 @@ def seroTYPE(f, seroprimers, allelesdb, cpus):
 					sero = seroWY(f, sero)
 				seroCOUNT.append(sero)
 		alleleSEQ.close()
+	# msg(seroCOUNT)
 	return seroCOUNT
 
 def seroWY(f, sero):
@@ -188,6 +190,7 @@ def finetypeBLAST(s, db, cpus):
 							ft = ftRESULT.split('_')[2]
 		if not ft:																			# if amplicon detected, but no match in db, assign as new
 			ft = 'new'
+	# msg(ft)
 	return str(ft)
 
 def porBTYPE(f, blastdb, cpus):
@@ -229,10 +232,14 @@ def fineTYPE(f, finetypeprimers, poradb, pora1db, pora2db, fetdb, cpus):
 	alleleSEQ = StringIO()
 	alleleSEQ.write(PCRout)
 	alleleSEQ.seek(0)
+	# msg(alleleSEQ)
+	
 	for amplicon in SeqIO.parse(alleleSEQ, "fasta"):
+		# msg(amplicon)
 		ampFILE = amplicon.description.split()
 		ampID = ampFILE[1]
-		ampLEN = ampFILE[2]					# Need to check amplicon length to exclude double hits?
+		ampLEN = ampFILE[2]		
+		# msg(ampID)			# Need to check amplicon length to exclude double hits?
 		if ampID == 'porA':
 			A1 = finetypeBLAST(amplicon, pora1db, cpus)
 			A2 = finetypeBLAST(amplicon, pora2db, cpus)
@@ -247,6 +254,7 @@ def fineTYPE(f, finetypeprimers, poradb, pora1db, pora2db, fetdb, cpus):
 			fetASEQ = amplicon.seq.upper()
 			fetARECR = SeqRecord(fetASEQ, id=f, description='FetA')
 			fetASEQS.append(fetARECR)
+	
 	if len(porACOUNT) == 0:
 		porseqBLAST = NcbiblastnCommandline(query=f, db=poradb, perc_identity=90, outfmt='"6 qseq"', culling_limit='1', num_threads=cpus)
 		stdout, stderr = porseqBLAST()
@@ -308,6 +316,9 @@ def bxTYPE(f, bxPRIMERS, fHbpDB, NHBADB, NadADB, cpus):
 		NadACOUNT.append('0')
 	return set(fHbpCOUNT), set(NHBACOUNT), set(NadACOUNT)
 
+def run_verification(verification_path, verification_type):
+	v = verification.Verification(verification_path = verification_path, reason = verification_type)
+	v.verify()
 ########## Meningotype main ####################################################
 
 def main():
@@ -338,9 +349,24 @@ def main():
 	parser.add_argument('--checkdeps', action='store_true', default=False, help='check dependencies are installed and exit')
 	parser.add_argument('--version', action='version', version=
 		'%(prog)s {}\n'.format(current_version))
+	parser.add_argument('--verify', action = 'store_true', help= 'Run MDU verification')
+	parser.add_argument('--verification_path', default='', help='Path to the directory where verification data is stored and will be run. REQUIRED if --verify is set.')
+	parser.add_argument('--verification_type', default='', help='Reason for verification - mupdate if meningotype updated, dupdate if databse(s) updated or aupdate if changing assembler.')
 	args = parser.parse_args()
 	cpus = int(args.cpus)
 
+	# run verification
+	if args.verify:
+		if args.verification_path == '':
+			msg(f"You are trying to run a verification, please supply the path to verification directory")
+			raise SystemExit
+		elif args.verification_type == '':
+			msg(f"You are trying to run a verification, you must specify a reason for verification. Check help and try again.")
+			raise SystemExit
+		else:
+			msg('Running verification of meningotype.')
+			run_verification(verification_path = args.verification_path, verification_type = args.verification_type)
+			sys.exit(0)
 	# Check dependencies
 	dependencies = ['isPcr', 'blastn', 'blastx', 'mlst']
 	if args.checkdeps:
@@ -529,7 +555,9 @@ def main():
 			fetACOUNT = '/'.join(ftRESULTS[1])
 
 		# Print results to stdout
-		results = [f, seroCOUNT, ctrACOUNT, mlst, porACOUNT, fetACOUNT, porBCOUNT, fHbpCOUNT, NHBACOUNT, NadACOUNT, bxtype]
+		
+		results = [f, seroCOUNT, ctrACOUNT, mlst[2], porACOUNT, fetACOUNT, porBCOUNT, fHbpCOUNT, NHBACOUNT, NadACOUNT, bxtype]
+		
 		print(sep.join(results))
 
 	# Print allele sequences to file

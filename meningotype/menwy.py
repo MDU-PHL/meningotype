@@ -27,6 +27,7 @@ def seqBLAST(f):
 	# BLAST
 	fBLAST = NcbiblastnCommandline(query=f, db=blastdb, outfmt="6 qseqid sstrand qstart qend sstart send slen qseq", dust='no', culling_limit=1)
 	stdout, stderr = fBLAST()
+
 	blastOUT = stdout.split('\t')
 	if len(blastOUT) == 8:
 		blast_sstrand = blastOUT[1]

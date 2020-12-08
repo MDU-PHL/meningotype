@@ -1,0 +1,85 @@
+Bootstrap: shub
+From: phgenomics-singularity/mlst:latest
+
+%help
+A Singularity image for MENINGOTYPE v{{version}}
+
+%labels
+Maintainer {{author}}
+Build 1.0
+MENINGOTYPE version {{version}}
+isPCR version 33
+MLST version {{mlst_version}}
+
+%environment
+export MENINGOTYPE_VERSION={{version}}
+export PATH=/opt/conda/bin:$PATH
+export PYTHONUSERBASE=False
+
+%post
+  export PATH=/opt/conda/bin:$PATH
+  MENINGOTYPE_VERSION={{version}}
+  isPCR_VERSION=33
+  
+  apt-get --yes update
+  apt-get --yes install build-essential autoconf automake wget git zlib1g-dev libbz2-dev libncurses5-dev curl unzip
+
+  apt-get --yes install software-properties-common
+  
+  # add python3 support
+  add-apt-repository --yes ppa:jonathonf/python-2.7
+  apt-get --yes update
+  apt-get --yes install python2.7
+
+
+  # getting pip and setuptools
+  curl https://bootstrap.pypa.io/get-pip.py | sudo python2.7
+  
+  echo "Installing isPCR"
+  
+  export MACHTYPE='unix'
+  export OLDHOME=${HOME}
+  isPCR_VERSION=33
+  isPCR_DL="http://hgwdev.cse.ucsc.edu/~kent/src/isPcr${isPCR_VERSION}.zip"
+  isPCR_ZIP=ispcr.zip
+  wget -O ${isPCR_ZIP} "${isPCR_DL}"
+  unzip -o ${isPCR_ZIP}
+  cd isPcrSrc
+  export HOME=${PWD}
+  sed -i 's/-Werror//g' inc/common.mk
+  mkdir -p bin/${MACHTYPE}
+  mkdir -p lib/${MACHTYPE}  
+  make
+  sudo mv bin/${MACHTYPE}/*Pcr /usr/local/bin
+  cd ..
+  rm -r isPcrSrc ${isPCR_ZIP}
+  export HOME=${OLDHOME}
+  
+  
+  echo "Installing MENINGOTYPE"
+
+  MENINGOTYPE_GT="git+https://github.com/MDU-PHL/meningotype.git@v${MENINGOTYPE_VERSION}"
+  pip2.7 install ${MENINGOTYPE_GT}
+  
+  echo "UPDATING MENINGOTYPE DB"
+  meningotype --updatedb
+  
+  echo "Sorting some env variables..."
+  echo "DB updated on $(date "+%Y-%m-%d")" > /etc/dbupdate
+  chmod 555 /etc/dbupdate
+  echo 'LANGUAGE="en_US:en"' >> $SINGULARITY_ENVIRONMENT
+  echo 'LC_ALL="en_US.UTF-8"' >> $SINGULARITY_ENVIRONMENT
+  echo 'LC_CTYPE="UTF-8"' >> $SINGULARITY_ENVIRONMENT
+  echo 'LANG="en_US.UTF-8"' >>  $SINGULARITY_ENVIRONMENT
+  
+  echo "Done"
+  
+%runscript
+  echo "Welcome to MENINGOTYPE {{version}}" >&2
+  cat /etc/dbupdate >&2
+  exec meningotype "$@"
+
+%test
+  export PATH=/opt/conda/bin:$PATH
+  echo "Testing MENINGOTYPE"
+  meningotype --all --test

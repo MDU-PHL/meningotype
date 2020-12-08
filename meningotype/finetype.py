@@ -41,6 +41,7 @@ def porBBLAST(f, blastdb, cpus):
 	fBLAST = NcbiblastnCommandline(query=f, db=blastdb, outfmt="6 qseqid sseqid pident length sstrand qstart qend sstart send slen", dust='no', culling_limit=1, num_threads=cpus)
 	stdout, stderr = fBLAST()
 	blastOUT = stdout.split('\t')
+	# msg(blastOUT)
 	if len(blastOUT) == 10:
 		blast_qseqid = blastOUT[0]
 		blast_sseqid = blastOUT[1]
@@ -71,6 +72,7 @@ def porBBLAST(f, blastdb, cpus):
 			elif blast_cov > 99:
 				porB = ''.join([blast_sseqid, '-like'])
 	result = [f, blast_qseqid, porB, str(blast_pident), str(blast_cov), porBRECR]
+	# msg(result)
 	return result
 
 def main():
