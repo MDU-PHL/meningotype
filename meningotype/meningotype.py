@@ -555,7 +555,9 @@ def main():
 
 		# Print results to stdout
 		
-		results = [f, seroCOUNT, ctrACOUNT, mlst[2], porACOUNT, fetACOUNT, porBCOUNT, fHbpCOUNT, NHBACOUNT, NadACOUNT, bxtype]
+		this_mlst = mlst[2] if isinstance(mlst, list) else mlst
+		
+		results = [f, seroCOUNT, ctrACOUNT, this_mlst, porACOUNT, fetACOUNT, porBCOUNT, fHbpCOUNT, NHBACOUNT, NadACOUNT, bxtype]
 		
 		print(sep.join(results))
 
