@@ -40,7 +40,7 @@ Y.fna      Y          ctrA    23      5-2,10-1   F4-1    NEIS2020_67     25     
 
 ### Dependencies
 
-* [Python 2.7.x](https://www.python.org/)
+* [Python >=3.6.x](https://www.python.org/)
 * [BioPython](http://biopython.org/)
 * [isPcr v33](http://hgwdev.cse.ucsc.edu/~kent/src/)
 * [NCBI BLAST+ >= 2.4](https://blast.ncbi.nlm.nih.gov/Blast.cgi?PAGE_TYPE=BlastDocs&DOC_TYPE=Download)
