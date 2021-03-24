@@ -1,16 +1,19 @@
+from os import path
 from setuptools import setup
 from meningotype import __version__ as version
 
 
-def readme():
-	with open('README.md') as f:
-		return f.read()
+here = path.abspath(path.dirname(__file__))
+
+with open(path.join(here, "README.md"), encoding="utf-8") as f:
+    long_description = f.read()
 
 
 setup(name='meningotype',
 	version=version,
 	description='In silico serotyping and finetyping (porA and fetA) of Neisseria meningitidis',
-	long_description=readme(),
+	long_description=long_description,
+	long_description_content_type="text/markdown",
 	classifiers=[
 		'Development Status :: 4 - Beta',
 		'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
