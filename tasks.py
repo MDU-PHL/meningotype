@@ -33,17 +33,6 @@ def build_container(c):
     c.sudo(f"cp {config['container_dir']}/salmonella_typing.simg {archive_dir}") #copy to the archive directory
     c.sudo(f"mv salmonella_typing.simg {config['container_dir']}") #move to the execution directory
 
-@task
-def run_verification(c):
-    config = toml.load("config.toml")
-    if 'verification_path' in config and 'verification_type' in config:
-        c.run(f"python3 meningotype/meningotype.py --verify --verification_path {config['verification_path']} --verification_type {config['verification_type']}")
-    else:
-        print("Please provide a path for verification data and a verification type.")
-@task
-def write_verification(c, config_path):
-    write = WriteMenigotypeVerify(config_path)
-    write.write_doc()
 
 @task
 def push_verification(c):
