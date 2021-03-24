@@ -315,9 +315,6 @@ def bxTYPE(f, bxPRIMERS, fHbpDB, NHBADB, NadADB, cpus):
 		NadACOUNT.append('0')
 	return set(fHbpCOUNT), set(NHBACOUNT), set(NadACOUNT)
 
-def run_verification(verification_path, verification_type):
-	v = verification.Verification(verification_path = verification_path, reason = verification_type)
-	v.verify()
 ########## Meningotype main ####################################################
 
 def main():
@@ -554,7 +551,7 @@ def main():
 			fetACOUNT = '/'.join(ftRESULTS[1])
 
 		# Print results to stdout
-		
+
 		this_mlst = mlst[2] if isinstance(mlst, list) else mlst
 		
 		results = [f, seroCOUNT, ctrACOUNT, this_mlst, porACOUNT, fetACOUNT, porBCOUNT, fHbpCOUNT, NHBACOUNT, NadACOUNT, bxtype]
