@@ -39,7 +39,7 @@ def ctrA_PCR(f, p, dbpath):
 		ctrABLAST = NcbiblastnCommandline(query=f, db=ctrADB, task='blastn', perc_identity=90, evalue='1e-20', outfmt='"6 sseqid pident length"', culling_limit='1')
 		
 		stdout, stderr = ctrABLAST()
-		msg(stdout)
+		#msg(stdout)
 		if stdout:
 			lenMATCH = 0
 			line = stdout.split('\n')[0]
@@ -52,7 +52,7 @@ def ctrA_PCR(f, p, dbpath):
 		for amplicon in SeqIO.parse(alleleSEQ, "fasta"):
 			
 			product = amplicon.description.split()
-			msg(product)
+			#msg(product)
 			ampID = product[1]
 			ampLEN = int(product[2][:-2])
 			if ampLEN > 100 and ampLEN < 120:
