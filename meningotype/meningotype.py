@@ -24,7 +24,7 @@ from io import StringIO
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
 # Import local modules
-from . import nmen, menwy, ctrA, porB, finetype, check_deps
+from . import nmen, menwy, ctrA, porB, finetype, check_deps, mendevar
 from . import __version__ as version
 
 ###### Script globals ##########################################################
@@ -487,6 +487,9 @@ def main():
 		except OSError:
 			err('ERROR: Unable to create "{}" in this directory.'.format(args.printseq))
 
+	#Create MenDeVAR index list
+	mdvr_config = readMendevarConf()
+
 	# Run meningotype
 	if len(args.fasta) == 0:
 		message = "\033[91mEither use --test or specify at least one FASTA file.\033[0m"
@@ -529,6 +532,11 @@ def main():
 			bxallele = fHbpCOUNT + dl + NHBACOUNT + dl + NadACOUNT + dl + porACOUNT
 			if bxallele in BAST:
 				bxtype = BAST[bxallele]
+
+			mdvrRESULTS = createMendevar(mdvr_config, porACOUNT, fHbpCOUNT, NHBACOUNT, NadACOUNT)
+			bexsero = mdvrRESULTS[0]
+			trumenba = mdvrRESULTS[1]
+
 		# Finetyping (porA, fetA, porB)
 		elif args.finetype:
 			ftRESULTS = fineTYPE(f, finetypePRIMERS, porADB, porA1DB, porA2DB, fetDB, cpus)
@@ -539,7 +547,7 @@ def main():
 
 		this_mlst = mlst[2] if isinstance(mlst, list) else mlst
 		
-		results = [f, seroCOUNT, ctrACOUNT, this_mlst, porACOUNT, fetACOUNT, porBCOUNT, fHbpCOUNT, NHBACOUNT, NadACOUNT, bxtype]
+		results = [f, seroCOUNT, ctrACOUNT, this_mlst, porACOUNT, fetACOUNT, porBCOUNT, fHbpCOUNT, NHBACOUNT, NadACOUNT, bxtype, bexsero, trumenba]
 		
 		print(sep.join(results))
 
