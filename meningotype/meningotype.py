@@ -491,6 +491,10 @@ def main():
 	#Create MenDeVAR index list
 	mdvr_config = readMendevarConf()
 
+	#Define output vars
+	bexsero = ""
+	trumenba = ""
+
 	# Run meningotype
 	if len(args.fasta) == 0:
 		message = "\033[91mEither use --test or specify at least one FASTA file.\033[0m"
