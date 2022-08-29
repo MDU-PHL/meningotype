@@ -231,6 +231,3 @@ def createMendevar(config, poravr, fhbp, nhba, nada):
 		trumenba = N_TRUMENBA["grey"]			
 
 	return bexsero, trumenba
-
-if __name__ == "__main__":
-	main()

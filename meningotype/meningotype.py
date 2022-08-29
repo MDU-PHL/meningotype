@@ -24,7 +24,8 @@ from io import StringIO
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
 # Import local modules
-from . import nmen, menwy, ctrA, porB, finetype, check_deps, mendevar
+from . import nmen, menwy, ctrA, porB, finetype, check_deps
+from .mendevar import createMendevar, readMendevarConf
 from . import __version__ as version
 
 ###### Script globals ##########################################################
