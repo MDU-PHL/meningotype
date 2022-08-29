@@ -497,7 +497,7 @@ def main():
 		sys.stderr.write('error: {}\n'.format( message ) )
 		parser.print_help()
 		parser.exit(1)
-	headers = ['SAMPLE_ID', 'SEROGROUP', 'ctrA', 'MLST', 'PorA', 'FetA', 'PorB', 'fHbp', 'NHBA', 'NadA', 'BAST']
+	headers = ['SAMPLE_ID', 'SEROGROUP', 'ctrA', 'MLST', 'PorA', 'FetA', 'PorB', 'fHbp', 'NHBA', 'NadA', 'BAST', 'Bexsero MenDeVAR', 'Trumenba MenDeVAR']
 	print(sep.join(headers))
 	for f in args.fasta:
 		if check_fasta(f) != True:
