@@ -19,7 +19,7 @@ N_BEXSERO = {
 	"green" : "Exact match", 
 	"amber" : "Cross-reactive", 
 	"red" : "No match",
-	"grey" : "Insufficent data", 
+	"grey" : "Insufficient data", 
 	}
 
 #Output naming for Trumenba vaccine MenDeVAR column (change nomenclature here if reports require different wording)
@@ -27,7 +27,7 @@ N_TRUMENBA = {
 	"green" : "Exact match", 
 	"amber" : "Cross-reactive", 
 	"red" : "No match",
-	"grey" : "Insufficent data", 
+	"grey" : "Insufficient data", 
 	}
 
 ###############################################################
