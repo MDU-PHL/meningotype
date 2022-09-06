@@ -226,7 +226,7 @@ def fineTYPE(f, finetypeprimers, poradb, pora1db, pora2db, fetdb, cpus):
 	fetACOUNT = []
 	global porASEQS
 	global fetASEQS
-	proc = subprocess.Popen(['isPcr', f, finetypeprimers, 'stdout', '-maxSize=800', '-tileSize=10', '-minPerfect=8', '-stepSize=3'], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+	proc = subprocess.Popen(['isPcr', f, finetypeprimers, 'stdout', '-maxSize=800', '-tileSize=10', '-minPerfect=8', '-stepSize=2'], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
 	PCRout = proc.communicate()[0].decode('UTF-8')
 	alleleSEQ = StringIO()
 	alleleSEQ.write(PCRout)
