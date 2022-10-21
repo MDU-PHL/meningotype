@@ -455,15 +455,17 @@ def main():
 		with open(BASTalleles) as db:
 			for lines in db:
 				line = lines.rstrip('\n').split('\t')
+				# msg(f"line: {line}")
 				ST = line[0]
-				msg(ST)
+				# msg(ST)
 				alleles = tuple(line[1:6])
-				msg(alleles)
+				# FIXME fHbp	NHBA	NadA PorA (? split this on the comma?)
+				# msg(alleles)
 				BAST[alleles] = ST
 				bexs_dict[ST] = line[6]
-				msg(f"bexs_dict[ST]: {bexs_dict[ST]}")
+				# msg(f"bexs_dict[ST]: {bexs_dict[ST]}")
 				trum_dict[ST] = line[7]
-				msg(f"trum_dict[ST]: {trum_dict[ST]}")
+				# msg(f"trum_dict[ST]: {trum_dict[ST]}")
 				
 
 	# Test example to check meningotype works
@@ -486,9 +488,7 @@ def main():
 			err('ERROR: Unable to create "{}" in this directory.'.format(args.printseq))
 
 
-	#Define output vars
-	bexsero = "-"
-	trumenba = "-"
+
 
 	# Run meningotype
 	if len(args.fasta) == 0:
@@ -511,6 +511,8 @@ def main():
 		NHBACOUNT = '-'
 		NadACOUNT = '-'
 		bxtype = '-'
+		bexsero = "-"
+		trumenba = "-"
 		# Standard run = serotype + ctrA
 		seroCOUNT = '/'.join(seroTYPE(f, seroPRIMERS, allelesDB, cpus))
 		ctrA_out = ctrA.ctrA_PCR(f, False, DBpath)
@@ -529,13 +531,12 @@ def main():
 			fHbpCOUNT = '/'.join(bxRESULTS[0])
 			NHBACOUNT = '/'.join(bxRESULTS[1])
 			NadACOUNT = '/'.join(bxRESULTS[2])
-			bxallele = tuple([fHbpCOUNT] + [NHBACOUNT] + [NadACOUNT] + [porACOUNT])
-			msg(bxallele)
-			if bxallele in BAST:
-				msg(f" found ST: {bxallele}")
-				bxtype = BAST[bxallele]
-				bexsero = bexs_dict[BAST[bxallele]]
-				trumenba = trum_dict[BAST[bxallele]]
+			bxallele = tuple([fHbpCOUNT] + [NHBACOUNT] + [NadACOUNT] + porACOUNT.split(","))
+
+			bxtype = BAST.get(bxallele, "-")
+			bexsero = bexs_dict.get(bxtype, "insufficient data")
+			trumenba = trum_dict.get(bxtype, "insufficient data")
+
 
 		# Finetyping (porA, fetA, porB)
 		elif args.finetype:
