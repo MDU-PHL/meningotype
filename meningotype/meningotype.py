@@ -25,19 +25,8 @@ from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
 # Import local modules
 from . import nmen, menwy, ctrA, porB, finetype, check_deps
-from .mendevar import createMendevar, readMendevarConf
 from . import __version__ as version
 
-###### Script globals ##########################################################
-
-# URLs to update database files (OLD)
-# porA1URL = 'http://pubmlst.org/perl/bigsdb/bigsdb.pl?db=pubmlst_neisseria_seqdef&page=downloadAlleles&locus=PorA_VR1'
-# porA2URL = 'http://pubmlst.org/perl/bigsdb/bigsdb.pl?db=pubmlst_neisseria_seqdef&page=downloadAlleles&locus=PorA_VR2'
-# fetAURL = 'http://pubmlst.org/perl/bigsdb/bigsdb.pl?db=pubmlst_neisseria_seqdef&page=downloadAlleles&locus=FetA_VR'
-# fHbpURL = 'http://pubmlst.org/perl/bigsdb/bigsdb.pl?db=pubmlst_neisseria_seqdef&page=downloadAlleles&locus=fHbp_peptide'
-# NHBAURL = 'http://pubmlst.org/perl/bigsdb/bigsdb.pl?db=pubmlst_neisseria_seqdef&page=downloadAlleles&locus=NHBA_peptide'
-# NadAURL = 'http://pubmlst.org/perl/bigsdb/bigsdb.pl?db=pubmlst_neisseria_seqdef&page=downloadAlleles&locus=NadA_peptide'
-# BASTURL = 'http://pubmlst.org/perl/bigsdb/bigsdb.pl?db=pubmlst_neisseria_seqdef'
 
 # URLs to update database files (REST API)
 porA1URL = 'http://rest.pubmlst.org/db/pubmlst_neisseria_seqdef/loci/PorA_VR1/alleles_fasta'
@@ -459,15 +448,23 @@ def main():
 			makeblastDB(NadADB, NadAalleles, 'prot')
 
 		# Import allele profiles as dictionary
+		bexs_dict = {}
+		trum_dict = {}
 		BAST = {}
-		dl = ','
+
 		with open(BASTalleles) as db:
-			for line in db:
-				if line.strip():
-					lines = line.split('\t')
-					ST = lines[0]
-					alleles = lines[1].rstrip() + dl + lines[2].rstrip() + dl + lines[3].rstrip() + dl + lines[4].rstrip() + dl + lines[5].rstrip('\n')
-					BAST[alleles] = ST
+			for lines in db:
+				line = lines.rstrip('\n').split('\t')
+				ST = line[0]
+				msg(ST)
+				alleles = tuple(line[1:6])
+				msg(alleles)
+				BAST[alleles] = ST
+				bexs_dict[ST] = line[6]
+				msg(f"bexs_dict[ST]: {bexs_dict[ST]}")
+				trum_dict[ST] = line[7]
+				msg(f"trum_dict[ST]: {trum_dict[ST]}")
+				
 
 	# Test example to check meningotype works
 	if args.test:
@@ -488,12 +485,10 @@ def main():
 		except OSError:
 			err('ERROR: Unable to create "{}" in this directory.'.format(args.printseq))
 
-	#Create MenDeVAR index list
-	mdvr_config = readMendevarConf()
 
 	#Define output vars
-	bexsero = ""
-	trumenba = ""
+	bexsero = "-"
+	trumenba = "-"
 
 	# Run meningotype
 	if len(args.fasta) == 0:
@@ -534,13 +529,13 @@ def main():
 			fHbpCOUNT = '/'.join(bxRESULTS[0])
 			NHBACOUNT = '/'.join(bxRESULTS[1])
 			NadACOUNT = '/'.join(bxRESULTS[2])
-			bxallele = fHbpCOUNT + dl + NHBACOUNT + dl + NadACOUNT + dl + porACOUNT
+			bxallele = tuple([fHbpCOUNT] + [NHBACOUNT] + [NadACOUNT] + [porACOUNT])
+			msg(bxallele)
 			if bxallele in BAST:
+				msg(f" found ST: {bxallele}")
 				bxtype = BAST[bxallele]
-
-			mdvrRESULTS = createMendevar(mdvr_config, porACOUNT, fHbpCOUNT, NHBACOUNT, NadACOUNT)
-			bexsero = mdvrRESULTS[0]
-			trumenba = mdvrRESULTS[1]
+				bexsero = bexs_dict[BAST[bxallele]]
+				trumenba = trum_dict[BAST[bxallele]]
 
 		# Finetyping (porA, fetA, porB)
 		elif args.finetype:
