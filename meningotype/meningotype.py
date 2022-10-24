@@ -455,17 +455,11 @@ def main():
 		with open(BASTalleles) as db:
 			for lines in db:
 				line = lines.rstrip('\n').split('\t')
-				# msg(f"line: {line}")
 				ST = line[0]
-				# msg(ST)
 				alleles = tuple(line[1:6])
-				# FIXME fHbp	NHBA	NadA PorA (? split this on the comma?)
-				# msg(alleles)
 				BAST[alleles] = ST
 				bexs_dict[ST] = line[6]
-				# msg(f"bexs_dict[ST]: {bexs_dict[ST]}")
 				trum_dict[ST] = line[7]
-				# msg(f"trum_dict[ST]: {trum_dict[ST]}")
 				
 
 	# Test example to check meningotype works
