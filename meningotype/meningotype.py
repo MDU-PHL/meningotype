@@ -311,23 +311,22 @@ def main():
 	parser = argparse.ArgumentParser(
 		formatter_class=RawTextHelpFormatter,
 		description='In silico typing for Neisseria meningitidis\n'
-			'Default: Serotyping, MLST and ctrA PCR\n'
+			'Default: Serotyping and ctrA PCR\n'
 			'\nPCR Serotyping Ref: Mothershed et al, J Clin Microbiol 2004; 42(1): 320-328\n'
 			'PorA and FetA typing Ref: Jolley et al, FEMS Microbiol Rev 2007; 31: 89-96\n'
 			'Bexsero antigen sequence typing (BAST) Ref: Brehony et al, Vaccine 2016; 34(39): 4690-4697\n'
-			'See also http://www.neisseria.org/nm/typing/',
+			'MenDeVAR Vaccine Reactivity Index Ref: Rodrigues et al. J Clin Microbiol. 2020; 59(1):e02161-20\n'
+			'See also https://pubmlst.org/organisms/neisseria-spp',
 		usage='\n  %(prog)s [OPTIONS] <fasta1> <fasta2> <fasta3> ... <fastaN>')
 	parser.add_argument('fasta', metavar='FASTA', nargs='*', help='input FASTA files eg. fasta1, fasta2, fasta3 ... fastaN')
-	# CSV option excluded due to syntax of porA finetype VR1,VR2
-	#parser.add_argument('--csv', action='store_true', default=False, help='output comma-separated format (CSV) rather than tab-separated')
 	parser.add_argument('--finetype', action='store_true', help='perform porA and fetA fine typing (default=off)')
 	parser.add_argument('--porB', action='store_true', help='perform porB sequence typing (NEIS2020) (default=off)')
-	parser.add_argument('--bast', action='store_true', help='perform Bexsero antigen sequence typing (BAST) (default=off)')
+	parser.add_argument('--bast', action='store_true', help='perform Bexsero antigen sequence typing (BAST) and determine MenDeVAR index (default=off)')
 	parser.add_argument('--mlst', action='store_true', help='perform MLST (default=off)')
-	parser.add_argument('--all', action='store_true', help='perform MLST, porA, fetA, porB, BAST typing (default=off)')
+	parser.add_argument('--all', action='store_true', help='perform MLST, porA, fetA, porB, BAST typing and determine MenDeVAR index (default=off)')
 	parser.add_argument('--db', metavar='DB', help='specify custom directory containing allele databases for porA/fetA typing\n'
 		'directory must contain database files: "FetA_VR.fas", "PorA_VR1.fas", "PorA_VR2.fas"\n'
-		'for Bexsero typing: "fHbp_peptide.fas", "NHBA_peptide.fas", "NadA_peptide.fas", "BASTalleles.txt"')
+		'For Bexsero typing and MenDeVAR: "fHbp_peptide.fas", "NHBA_peptide.fas", "NadA_peptide.fas", "BASTalleles.txt"\n')
 	parser.add_argument('--printseq', metavar='DIR', help='specify directory to save extracted porA/fetA/porB or BAST allele sequences (default=off)')
 	parser.add_argument('--cpus', metavar='CPUS', default=1, help='number of cpus to use in BLAST search (default=1)')
 	parser.add_argument('--updatedb', action='store_true', default=False, help='update allele database from <pubmlst.org>')
@@ -490,8 +489,58 @@ def main():
 		sys.stderr.write('error: {}\n'.format( message ) )
 		parser.print_help()
 		parser.exit(1)
+
+	########### DEFINING OUTPUT COLUMNS ###########
+
+	# 1       SAMPLE_ID
+	# 2       SEROGROUP
+	# 3       ctrA
+	# 4       MLST
+	# 5       PorA
+	# 6       FetA
+	# 7       PorB
+	# 8       fHbp
+	# 9       NHBA
+	# 10      NadA
+	# 11      BAST
+	# 12      Bexsero MenDeVAR
+	# 13      Trumenba MenDeVAR
+
+	# Default 1-3
+	out_cols = {0,1,2}
+
+	# args.finetype add 5,6 columns
+	if args.finetype:
+		out_cols.update({4,5})
+
+	# args.bast add 5,6, 8-13
+	if args.bast:
+		out_cols.update({4,5})
+		for pos in range(7,13):
+			out_cols.update({pos})
+
+	# args.mlst Add 4th columns
+	if args.mlst:
+		out_cols.update({3})
+
+	# args.all add all columns 4-13
+	if args.all:
+		for pos in range(3,13):
+			out_cols.update({pos})
+
+	# args.porB add 7th column
+	if args.porB:
+		out_cols.update({6})
+
+	###############################################
+
 	headers = ['SAMPLE_ID', 'SEROGROUP', 'ctrA', 'MLST', 'PorA', 'FetA', 'PorB', 'fHbp', 'NHBA', 'NadA', 'BAST', 'Bexsero MenDeVAR', 'Trumenba MenDeVAR']
-	print(sep.join(headers))
+	# only show headers of the output that is created
+	subs_headers = [headers[i] for i in out_cols]
+
+	print(sep.join(subs_headers))
+
+
 	for f in args.fasta:
 		if check_fasta(f) != True:
 			print('{}\tERROR: Check file exists and is in FASTA nucleotide format.'.format(f))
@@ -543,8 +592,9 @@ def main():
 		this_mlst = mlst[2] if isinstance(mlst, list) else mlst
 		
 		results = [f, seroCOUNT, ctrACOUNT, this_mlst, porACOUNT, fetACOUNT, porBCOUNT, fHbpCOUNT, NHBACOUNT, NadACOUNT, bxtype, bexsero, trumenba]
-		
-		print(sep.join(results))
+		# print only the result columns that have been requested via set args
+		subs_results = [results[i] for i in out_cols]
+		print(sep.join(subs_results))
 
 	# Print allele sequences to file
 	if args.printseq:
