@@ -26,7 +26,7 @@ jobs:
     strategy:
       matrix:
         python-version: [3.7, 3.8, 3.9]
-        blast-version: [2.9.0, 2.10.1, 2.11.0]
+        blast-version: [2.13.0]
 
     steps:
     - uses: actions/checkout@v2
@@ -36,15 +36,10 @@ jobs:
         python-version: ${{ matrix.python-version }}
         channels: conda-forge, bioconda
         activate-environment: meningotype
-    - name: Install BLAST
+    - name: Install meningotype dependencies
       shell: bash -l {0}
       run: |
-        conda install blast=${{matrix.blast-version}}
-    - name: Install LisSero and dependencies
-      shell: bash -l {0}
-      run: |
-        conda install flake8 ispcr mlst
-        pip install .
+        conda install blast=${{matrix.blast-version}} flake8 ispcr mlst
     - name: Lint with flake8
       shell: bash -l {0}
       run: |
