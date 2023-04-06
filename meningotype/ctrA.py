@@ -10,7 +10,7 @@ import argparse
 from argparse import RawTextHelpFormatter
 import sys
 import os
-from subprocess import Popen
+from subprocess import Popen, PIPE
 from io import StringIO
 from Bio import SeqIO
 from Bio.Blast.Applications import NcbiblastnCommandline
@@ -34,7 +34,7 @@ def ctrA_PCR(f, p, dbpath):
     ctrADB = os.path.join(dbpath, 'blast', 'ctrA')
     resultBLAST = '-'
     resultPCR = '-'
-    proc = Popen(['isPcr', f, ctrAPRIMERS, 'stdout', '-minPerfect=10'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    proc = Popen(['isPcr', f, ctrAPRIMERS, 'stdout', '-minPerfect=10'], stdout=PIPE, stderr=PIPE)
     PCRout = proc.communicate()[0].decode('UTF-8')
     if not PCRout:
         ctrABLAST = NcbiblastnCommandline(
