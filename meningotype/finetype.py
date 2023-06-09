@@ -2,9 +2,6 @@
 # Script by Jason Kwong
 # Extracts porB sequence from Neisseria meningitidis
 
-# Use modern print function from python 3.x
-from __future__ import print_function
-
 # Modules
 import argparse
 from argparse import RawTextHelpFormatter
