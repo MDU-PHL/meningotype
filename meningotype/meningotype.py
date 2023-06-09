@@ -1,11 +1,10 @@
 #!/usr/bin/env python
-# Script by Jason Kwong
-# In silico typing for Neisseria meningitidis
 
-# Use modern print function from python 3.x
-from __future__ import print_function
+'''
+Script by Jason Kwong (refactored by Andreas Stroehlein in v0.9.0)
+In silico typing for Neisseria meningitidis
+'''
 
-# Usage
 import argparse
 from argparse import RawTextHelpFormatter
 import sys
@@ -13,17 +12,15 @@ import os
 import os.path
 import re
 import urllib
-import subprocess
 from Bio import SeqIO
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
 from Bio.Blast.Applications import NcbiblastnCommandline, NcbiblastxCommandline
 from pkg_resources import resource_filename
 from io import StringIO
-# Import local modules
-from . import menwy, ctrA, porB, finetype, check_deps
+from . import run_subprocess as rs
+from . import menwy, ctrA, finetype, check_deps
 from . import __version__ as version
-
 
 # URLs to update database files (REST API)
 porA1URL = 'http://rest.pubmlst.org/db/pubmlst_neisseria_seqdef/loci/PorA_VR1/alleles_fasta'
@@ -45,12 +42,10 @@ porBSEQS = []
 fHbpSEQS = []
 NHBASEQS = []
 NadASEQS = []
+
 sero = None
 porA = None
 fet = None
-
-# F811 redefinition of unused 'porB' from line 27
-# porB = None
 fHbp = None
 NHBA = None
 NadA = None
@@ -69,20 +64,22 @@ def err(*args, **kwargs):
     msg(*args, **kwargs)
     sys.exit(1)
 
-# Database functions
-
-# Update database files
 def update_db(db_file, db_url):
+    '''
+    Update database files
+    '''
     if os.path.isfile(db_file):
         os.rename(db_file, db_file+'.old')
     urllib.request.urlretrieve(db_url, db_file)
 
 
-# Check files are present
+
 def check_primer_files(f):
+    '''
+    Check primer files are present
+    '''
     if not os.path.isfile(f):
         err('ERROR: Cannot locate file: "{}"'.format(f))
-
 
 def check_db_files(f, db_url):
     if not os.path.isfile(f):
@@ -103,34 +100,24 @@ def check_fasta(f):
                 return False
     return True
 
-
-# Set up BLAST databases if not present
 def makeblastDB(db, infile, dbtype):
-    # if dbtype == 'nucl':
-    #     DBindex = db + '.nin'
-    # elif dbtype == 'prot':
-    #     DBindex = db + '.pin'
-    # proc = subprocess.Popen(['makeblastdb', '-in', infile, '-out', db, '-dbtype', dbtype], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    # F841 local variable 'proc' is assigned to but never used
-    subprocess.Popen(['makeblastdb',
-                        '-in',
-                        infile,
-                        '-out',
-                        db,
-                        '-dbtype',
-                        dbtype
-                    ],
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE)
+    '''
+    Set up BLAST databases if not present
+    '''
+    command = ['makeblastdb', '-in', infile, '-out', db, '-dbtype', dbtype]
+    rs.run_subprocess(command)
 
 
-# Main serotyping functions
 
 def seroTYPE(f, seroprimers, allelesdb, cpus):
-    seroCOUNT = []                # Setup list in case there are mixed/multiple hits
-    proc = subprocess.Popen(['isPcr', f, seroprimers, 'stdout', '-minPerfect=10'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    PCRout = proc.communicate()[0].decode('UTF-8')
-    if not PCRout:
+    '''
+    Main serotyping functions
+    '''
+    seroCOUNT = [] # List for mixed/multiple hits
+    command = ['isPcr', f, seroprimers, 'stdout', '-minPerfect=10']
+    pcr_out = rs.run_subprocess(command)
+    
+    if not pcr_out:
         sero = None
         seroBLAST = NcbiblastnCommandline(query=f,
                                             db=allelesdb,
@@ -153,7 +140,7 @@ def seroTYPE(f, seroprimers, allelesdb, cpus):
             seroCOUNT.append(sero)
     else:
         alleleSEQ = StringIO()
-        alleleSEQ.write(PCRout)
+        alleleSEQ.write(pcr_out)
         alleleSEQ.seek(0)
         for amplicon in SeqIO.parse(alleleSEQ, "fasta"):
             
@@ -167,9 +154,7 @@ def seroTYPE(f, seroprimers, allelesdb, cpus):
                     sero = seroWY(f, sero)
                 seroCOUNT.append(sero)
         alleleSEQ.close()
-    # msg(seroCOUNT)
     return seroCOUNT
-
 
 def seroWY(f, sero):
     wyTYPE = menwy.menwy(f, False)
@@ -179,12 +164,13 @@ def seroWY(f, sero):
     else:
         return wy
 
-
-def nm_mlst(f):
-    proc = subprocess.Popen(['mlst', '--scheme=neisseria', '--quiet', f], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    PCRout = proc.communicate()[0].decode('UTF-8')
-    return PCRout.split('\t')[2]
-
+def nm_mlst(fasta_input):
+    '''
+    Run mlst on fasta file
+    '''
+    command = ['mlst', '--scheme=neisseria', '--quiet', fasta_input]
+    mlst_out = rs.run_subprocess(command)
+    return mlst_out.split('\t')[2]
 
 def finetypeBLAST(s, db, cpus):
     ft = None
@@ -205,16 +191,14 @@ def finetypeBLAST(s, db, cpus):
                             ft = ftRESULT.split('_')[2]
         if not ft:                                                                            # if amplicon detected, but no match in db, assign as new
             ft = 'new'
-    # msg(ft)
+            
     return str(ft)
-
 
 def porBTYPE(f, blastdb, cpus):
     porB_result = finetype.porBBLAST(f, blastdb, cpus)
     porBCOUNT = porB_result[2]
     porBSEQS.append(porB_result[5])
     return porBCOUNT
-
 
 def bxtypeBLAST(s, db, cpus):
     bx = None
@@ -239,25 +223,26 @@ def bxtypeBLAST(s, db, cpus):
         bx = '0'
     return str(bx)
 
-
 def fineTYPE(f, finetypeprimers, poradb, pora1db, pora2db, fetdb, cpus):
     porACOUNT = []                            # Setup list in case there are mixed/multiple hits
     fetACOUNT = []
     global porASEQS
     global fetASEQS
-    proc = subprocess.Popen(['isPcr', f, finetypeprimers, 'stdout', '-maxSize=800', '-tileSize=10', '-minPerfect=8', '-stepSize=3'], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
-    PCRout = proc.communicate()[0].decode('UTF-8')
+
+    command = ['isPcr', f, finetypeprimers, 'stdout', '-maxSize=800',
+               '-tileSize=10', '-minPerfect=8', '-stepSize=3']
+    pcr_out = rs.run_subprocess(command)
+
     alleleSEQ = StringIO()
-    alleleSEQ.write(PCRout)
+    alleleSEQ.write(pcr_out)
     alleleSEQ.seek(0)
-    # msg(alleleSEQ)
-    
+
     for amplicon in SeqIO.parse(alleleSEQ, "fasta"):
         # msg(amplicon)
         ampFILE = amplicon.description.split()
         ampID = ampFILE[1]
         ampLEN = ampFILE[2]        
-        # msg(ampID)            # Need to check amplicon length to exclude double hits?
+        # Need to check amplicon length to exclude double hits?
         if ampID == 'porA':
             A1 = finetypeBLAST(amplicon, pora1db, cpus)
             A2 = finetypeBLAST(amplicon, pora2db, cpus)
@@ -294,21 +279,23 @@ def fineTYPE(f, finetypeprimers, poradb, pora1db, pora2db, fetdb, cpus):
 
 
 def bxTYPE(f, bxPRIMERS, fHbpDB, NHBADB, NadADB, cpus):
-    fHbpCOUNT = []                            # Setup list in case there are mixed/multiple hits
+    fHbpCOUNT = [] # List for mixed/multiple hits
     NHBACOUNT = []
     NadACOUNT = []
     global fHbpSEQS
     global NHBASEQS
     global NadASEQS
-    proc = subprocess.Popen(['isPcr', f, bxPRIMERS, 'stdout', '-maxSize=3000', '-tileSize=7', '-minPerfect=8', '-stepSize=3'], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
-    PCRout = proc.communicate()[0].decode('UTF-8')
+    
+    command = ['isPcr', f, bxPRIMERS, 'stdout', '-maxSize=3000', '-tileSize=7', '-minPerfect=8', '-stepSize=3']
+    pcr_out = rs.run_subprocess(command)
+        
     alleleSEQ = StringIO()
-    alleleSEQ.write(PCRout)
+    alleleSEQ.write(pcr_out)
     alleleSEQ.seek(0)
     for amplicon in SeqIO.parse(alleleSEQ, "fasta"):
         ampFILE = amplicon.description.split()
         ampID = ampFILE[1]
-        ampLEN = ampFILE[2]                    # Need to check amplicon length to exclude double hits?
+        ampLEN = ampFILE[2] # Need to check amplicon length to exclude double hits?
         if ampID == 'fHbp':
             fHbp = bxtypeBLAST(amplicon, fHbpDB, cpus)
             fHbpCOUNT.append(fHbp)
@@ -335,9 +322,10 @@ def bxTYPE(f, bxPRIMERS, fHbpDB, NHBADB, NadADB, cpus):
         NadACOUNT.append('0')
     return set(fHbpCOUNT), set(NHBACOUNT), set(NadACOUNT)
 
-# Meningotype main
-
 def main():
+    '''
+    Main function for command line call
+    '''
     parser = argparse.ArgumentParser(
         formatter_class=RawTextHelpFormatter,
         description='In silico typing for Neisseria meningitidis\n'
@@ -510,9 +498,6 @@ def main():
         except OSError:
             err('ERROR: Unable to create "{}" in this directory.'.format(args.printseq))
 
-
-
-
     # Run meningotype
     if len(args.fasta) == 0:
         message = "\033[91mEither use --test or specify at least one FASTA file.\033[0m"
@@ -582,8 +567,8 @@ def main():
         NHBACOUNT = '-'
         NadACOUNT = '-'
         bxtype = '-'
-        bexsero = "-"
-        trumenba = "-"
+        bexsero = '-'
+        trumenba = '-'
         # Standard run = serotype + ctrA
         seroCOUNT = '/'.join(seroTYPE(f, seroPRIMERS, allelesDB, cpus))
         ctrA_out = ctrA.ctrA_PCR(f, False, DBpath)
