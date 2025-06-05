@@ -96,7 +96,7 @@ def check_fasta(f):
             line = line.strip()
             if not line or line[0] == '>':
                 continue
-            if bool(re.search('[^ACTGactgNn-]', line)):
+            if bool(re.search('[^ACTGactgNnWwYyRrKkMmSsDdBbHhVv-]', line)):
                 return False
     return True
 
