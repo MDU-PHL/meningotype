@@ -14,7 +14,7 @@ from subprocess import Popen, PIPE
 from io import StringIO
 from Bio import SeqIO
 from Bio.Blast.Applications import NcbiblastnCommandline
-from pkg_resources import resource_filename
+from importlib.resources import files
 
 # Standard functions
 # Log a message to stderr
@@ -88,7 +88,7 @@ def main():
 				        )
     args = parser.parse_args()
 
-    DBpath = resource_filename(__name__, 'db')
+    DBpath = str(files(__package__).joinpath('db'))
 
     # Main
     print('\t'.join(['SAMPLE_ID', 'PCRresult', 'BLASTresult']))
