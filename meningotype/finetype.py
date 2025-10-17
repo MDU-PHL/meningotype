@@ -13,7 +13,7 @@ from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
 from Bio.Blast.Applications import NcbiblastnCommandline
 from Bio.Blast import NCBIXML
-from pkg_resources import resource_string, resource_filename
+from importlib.resources import files
 
 # Import local modules
 from . import nmen
@@ -94,7 +94,7 @@ def main():
 	if args.db:
 		DBpath = str(args.db).rstrip('/')
 	else:
-		DBpath = resource_filename(__name__, 'db')
+		DBpath = str(files(__package__).joinpath('db'))
 
 	porBDB = os.path.join( DBpath, 'blast', 'porB' )
 

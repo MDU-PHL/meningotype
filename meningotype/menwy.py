@@ -14,7 +14,7 @@ from Bio.Seq import Seq
 from Bio import SeqIO
 from Bio.Blast.Applications import NcbiblastnCommandline
 from Bio.Blast import NCBIXML
-from pkg_resources import resource_string, resource_filename
+from importlib.resources import files
 
 # Local modules
 from . import nmen
@@ -22,7 +22,7 @@ from . import nmen
 # BLAST
 def seqBLAST(f):
 	# Set globals
-	DBpath = resource_filename(__name__, 'db')
+	DBpath = str(files(__package__).joinpath('db'))
 	blastdb = os.path.join(DBpath, 'blast', 'synG')
 	# BLAST
 	fBLAST = NcbiblastnCommandline(query=f, db=blastdb, outfmt="6 qseqid sstrand qstart qend sstart send slen qseq", dust='no', culling_limit=1)

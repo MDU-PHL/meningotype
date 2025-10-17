@@ -16,7 +16,7 @@ from Bio import SeqIO
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
 from Bio.Blast.Applications import NcbiblastnCommandline, NcbiblastxCommandline
-from pkg_resources import resource_filename
+from importlib.resources import files
 from io import StringIO
 from . import run_subprocess as rs
 from . import menwy, ctrA, finetype, check_deps
@@ -377,7 +377,7 @@ def main():
     if args.db:
         DBpath = str(args.db).rstrip('/')
     else:
-        DBpath = resource_filename(__name__, 'db')
+        DBpath = str(files(__package__).joinpath('db'))
 
     # Path to database files
     porA1alleles = os.path.join( DBpath, 'PorA_VR1.fas' )
@@ -481,7 +481,7 @@ def main():
 
     # Test example to check meningotype works
     if args.test:
-        TESTpath = resource_filename(__name__, 'test')
+        TESTpath = str(files(__package__).joinpath('test'))
         testSEQS = [os.path.join( TESTpath, f ) for f in ['A.fna', 'B.fna', 'C.fna', 'W.fna', 'X.fna', 'Y.fna'] ]
         msg('\033[94mRunning meningotype.py on test examples ... \033[0m')
         msg('$ meningotype.py A.fna B.fna C.fna W.fna X.fna Y.fna')
