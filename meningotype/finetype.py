@@ -16,10 +16,9 @@ from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
 # from Bio.Blast.Applications import NcbiblastnCommandline
 from Bio.Blast import NCBIXML
-# from pkg_resources import resource_string, resource_filename
+
 from meningotype import run_blast,nmen
-# Import local modules
-# import nmen
+
 
 # Standard functions
 # Log a message to stderr

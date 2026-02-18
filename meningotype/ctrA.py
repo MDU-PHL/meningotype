@@ -15,8 +15,7 @@ from subprocess import Popen
 from io import StringIO
 from Bio import SeqIO
 from meningotype import run_blast,nmen
-# from Bio.Blast.Applications import NcbiblastnCommandline
-# from pkg_resources import resource_string, resource_filename
+
 
 # Standard functions
 # Log a message to stderr

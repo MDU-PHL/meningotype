@@ -13,9 +13,9 @@ import os
 import subprocess
 from Bio.Seq import Seq
 from Bio import SeqIO
-# from Bio.Blast.Applications import NcbiblastnCommandline
+
 from Bio.Blast import NCBIXML
-# from pkg_resources import resource_string, resource_filename
+
 
 # Local modules
 from meningotype import run_blast,nmen

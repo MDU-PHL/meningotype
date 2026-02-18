@@ -22,8 +22,7 @@ from subprocess import Popen
 from Bio import SeqIO
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
-# from Bio.Blast.Applications import NcbiblastnCommandline, NcbiblastxCommandline
-# from pkg_resources import resource_string, resource_filename
+
 
 # Import local modules
 from meningotype import menwy, ctrA, porB, finetype, check_deps, run_blast
