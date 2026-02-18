@@ -1,23 +1,26 @@
+from os import path
 from setuptools import setup
+from meningotype import __version__ as version
 
-def readme():
-	with open('README.md') as f:
-		return f.read()
 
-def current_version():
-	with open('meningotype/meningotype.py') as f:
-		for index, line in enumerate(f):
-			if index == 8:
-				return line.split("'")[1]
+here = path.abspath(path.dirname(__file__))
+
+with open(path.join(here, "README.md"), encoding="utf-8") as f:
+    long_description = f.read()
+
 
 setup(name='meningotype',
-	version=current_version(),
+	version=version,
 	description='In silico serotyping and finetyping (porA and fetA) of Neisseria meningitidis',
-	long_description=readme(),
+	long_description=long_description,
+	long_description_content_type="text/markdown",
 	classifiers=[
 		'Development Status :: 4 - Beta',
-		'License :: OSI Approved :: GPLv3',
-		'Programming Language :: Python :: 2.7',
+		'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
+		'Programming Language :: Python :: 3.6',
+		'Programming Language :: Python :: 3.7',
+		'Programming Language :: Python :: 3.8',
+		'Programming Language :: Python :: 3.9',
 		'Topic :: Scientific/Engineering :: Bio-Informatics',
 		'Topic :: Scientific/Engineering :: Medical Science Apps.',
 		'Intended Audience :: Science/Research',
@@ -30,18 +33,11 @@ setup(name='meningotype',
 	packages=['meningotype'],
 	install_requires=[
 		'argparse',
-		'BioPython',
+		'biopython',
 		
 	],
 	test_suite='nose.collector',
 	tests_require=[],
-	console_scripts=[
-		'meningotype/nmen.py',
-		'meningotype/ctrA.py',
-		'meningotype/menwy.py',
-		'meningotype/finetype.py',
-		'meningotype/porB.py',
-	],
 	entry_points={
 		'console_scripts': ['meningotype=meningotype.meningotype:main'],
 	},
