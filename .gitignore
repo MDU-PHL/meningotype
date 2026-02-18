@@ -1,3 +1,9 @@
 meningotype.egg-info/*
 venv/*
 *.pyc
+build
+dist
+testMendMain.py
+meningotype_26_MenB_since_Aug_2019.tsv
+test_class.py
+notes_validation.txt
