@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+  
+  pull_request:
+    
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -el {0}
+    steps:
+
+      - name: Pull meningotype repo
+        uses: actions/checkout@v5
+
+      - name: Setup conda
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          miniforge-version: latest
+          channels: conda-forge,bioconda
+          channel-priority: strict
+          activate-environment: meningotype
+          environment-file: environment.yml
+          auto-update-conda: true
+
+      - name: Install meningotype
+        run: |
+          pip3 install .
+
+      - name: Simple meningotype test
+        run: |
+          bohra --version
+          bohra --help
+          bohra --test
+
+      
