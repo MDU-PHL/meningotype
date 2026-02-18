@@ -10,16 +10,16 @@ import argparse
 from argparse import RawTextHelpFormatter
 import sys
 import os
-import StringIO
+from io import StringIO
 from Bio import SeqIO
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
-from Bio.Blast.Applications import NcbiblastnCommandline
+# from Bio.Blast.Applications import NcbiblastnCommandline
 from Bio.Blast import NCBIXML
-from pkg_resources import resource_string, resource_filename
-
+# from pkg_resources import resource_string, resource_filename
+from meningotype import run_blast
 # Import local modules
-import nmen
+# import nmen
 
 # Standard functions
 # Log a message to stderr
@@ -38,8 +38,9 @@ def porBBLAST(f, blastdb):
 	blast_pident = '-'
 	blast_cov = '<99'
 	porBRECR = None
-	fBLAST = NcbiblastnCommandline(query=f, db=blastdb, outfmt="'6 qseqid sseqid pident length sstrand qstart qend sstart send slen'", dust='no', culling_limit=1)
-	stdout, stderr = fBLAST()
+	# fBLAST = NcbiblastnCommandline(query=f, db=blastdb, outfmt="'6 qseqid sseqid pident length sstrand qstart qend sstart send slen'", dust='no', culling_limit=1)
+	# 
+	stdout, stderr = run_blast.seqBLAST(query=f, db=blastdb, blast='blastn', outfmt="'6 qseqid sseqid pident length sstrand qstart qend sstart send slen'", perc_identity=90, evalue='1e-20', num_threads=1, culling_limit=1)
 	blastOUT = stdout.split('\t')
 	if len(blastOUT) == 10:
 		blast_qseqid = blastOUT[0]
@@ -93,7 +94,7 @@ def main():
 	if args.db:
 		DBpath = str(args.db).rstrip('/')
 	else:
-		DBpath = resource_filename(__name__, 'db')
+		DBpath = os.path.join(os.path.dirname(__file__), 'db')
 
 	porBDB = os.path.join( DBpath, 'blast', 'porB' )
 

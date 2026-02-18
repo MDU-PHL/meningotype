@@ -15,18 +15,20 @@ import sys
 import os
 import os.path
 import re
-import StringIO
+from io import StringIO
 import urllib
 import subprocess
 from subprocess import Popen
 from Bio import SeqIO
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
-from Bio.Blast.Applications import NcbiblastnCommandline, NcbiblastxCommandline
-from pkg_resources import resource_string, resource_filename
+# from Bio.Blast.Applications import NcbiblastnCommandline, NcbiblastxCommandline
+# from pkg_resources import resource_string, resource_filename
 
 # Import local modules
-import nmen, menwy, ctrA, porB, finetype, check_deps
+from meningotype import menwy, ctrA, porB, finetype, check_deps, run_blast
+
+
 
 ###### Script globals ##########################################################
 
@@ -124,11 +126,13 @@ def makeblastDB(db, infile, dbtype):
 def seroTYPE(f, seroprimers, allelesdb, cpus):
 	seroCOUNT = []				# Setup list in case there are mixed/multiple hits
 	proc = subprocess.Popen(['isPcr', f, seroprimers, 'stdout', '-minPerfect=10'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-	PCRout = proc.communicate()[0]
+	PCRout = f"{proc.communicate()[0].decode('utf-8')}"
+	
 	if not PCRout:
 		sero = None
-		seroBLAST = NcbiblastnCommandline(query=f, db=allelesdb, task='blastn', perc_identity=90, evalue='1e-20', outfmt='"6 sseqid pident length"', culling_limit='1', num_threads=cpus)
-		stdout, stderr = seroBLAST()
+		# seroBLAST = NcbiblastnCommandline(query=f, db=allelesdb, task='blastn', perc_identity=90, evalue='1e-20', outfmt='"6 sseqid pident length"', culling_limit='1', num_threads=cpus)
+		# seroBLAST = 
+		stdout, stderr = run_blast.seqBLAST(query=f, db=allelesdb, blast='blastn', outfmt='"6 sseqid pident length"', perc_identity=90, evalue='1e-20', num_threads=cpus, culling_limit=1)
 		lenMATCH = 0
 		line = stdout.split('\n')[0]
 		amp = line.split('\t')
@@ -140,7 +144,7 @@ def seroTYPE(f, seroprimers, allelesdb, cpus):
 				sero = seroWY(f, sero)
 			seroCOUNT.append(sero)
 	else:
-		alleleSEQ = StringIO.StringIO()
+		alleleSEQ = StringIO()
 		alleleSEQ.write(PCRout)
 		alleleSEQ.seek(0)
 		for amplicon in SeqIO.parse(alleleSEQ, "fasta"):
@@ -172,8 +176,9 @@ def nm_mlst(f):
 def finetypeBLAST(s, db, cpus):
 	ft = None
 	allele = None
-	ftBLAST = NcbiblastxCommandline(query='-', db=db, outfmt='"6 qseqid sseqid pident length slen gaps nident evalue"', seg='no', query_gencode='11', matrix='PAM30', ungapped='true', comp_based_stats='0', evalue='1e-2', num_threads=cpus)		# blastx command to fix finding short sequences
-	stdout, stderr = ftBLAST(stdin=s.format('fasta'))
+	# ftBLAST = NcbiblastxCommandline(query='-', db=db, outfmt='"6 qseqid sseqid pident length slen gaps nident evalue"', seg='no', query_gencode='11', matrix='PAM30', ungapped='true', comp_based_stats='0', evalue='1e-2', num_threads=cpus)		# blastx command to fix finding short sequences
+	# ftBLAST = 
+	stdout, stderr = run_blast.seqBLAST(query='-', db=db, blast='blastx', outfmt='"6 qseqid sseqid pident length slen gaps nident evalue"', seg='no', query_gencode='11', matrix='PAM30', ungapped='true', comp_based_stats='0', evalue='1e-2', num_threads=cpus, fasta_data=str(s.format('fasta')))
 	if stdout:
 		BLASTout = stdout.split('\n')
 		lenMATCH = 0
@@ -199,8 +204,9 @@ def porBTYPE(f, blastdb, cpus):
 def bxtypeBLAST(s, db, cpus):
 	bx = None
 	allele = None
-	bxBLAST = NcbiblastxCommandline(query='-', db=db, outfmt='"6 qseqid sseqid pident length slen gaps nident evalue"', seg='no', culling_limit='1', evalue='1e-100', query_gencode='11', num_threads=cpus)
-	stdout, stderr = bxBLAST(stdin=s.format('fasta'))
+	# bxBLAST = NcbiblastxCommandline(query='-', db=db, outfmt='"6 qseqid sseqid pident length slen gaps nident evalue"', seg='no', culling_limit='1', evalue='1e-100', query_gencode='11', num_threads=cpus)
+	
+	stdout, stderr = run_blast.seqBLAST(query='-', db=db, blast='blastx', outfmt='"6 qseqid sseqid pident length slen gaps nident evalue"', seg='no', culling_limit='1', evalue='1e-100', query_gencode='11', num_threads=cpus, fasta_data=str(s.format('fasta')))
 	if stdout:
 		BLASTout = stdout.split('\n')
 		lenMATCH = 0
@@ -226,7 +232,7 @@ def fineTYPE(f, finetypeprimers, poradb, pora1db, pora2db, fetdb, cpus):
 	global fetASEQS
 	proc = subprocess.Popen(['isPcr', f, finetypeprimers, 'stdout', '-maxSize=800', '-tileSize=10', '-minPerfect=8', '-stepSize=3'], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
 	PCRout = proc.communicate()[0]
-	alleleSEQ = StringIO.StringIO()
+	alleleSEQ = StringIO()
 	alleleSEQ.write(PCRout)
 	alleleSEQ.seek(0)
 	for amplicon in SeqIO.parse(alleleSEQ, "fasta"):
@@ -248,8 +254,9 @@ def fineTYPE(f, finetypeprimers, poradb, pora1db, pora2db, fetdb, cpus):
 			fetARECR = SeqRecord(fetASEQ, id=f, description='FetA')
 			fetASEQS.append(fetARECR)
 	if len(porACOUNT) == 0:
-		porseqBLAST = NcbiblastnCommandline(query=f, db=poradb, perc_identity=90, outfmt='"6 qseq"', culling_limit='1', num_threads=cpus)
-		stdout, stderr = porseqBLAST()
+		# porseqBLAST = NcbiblastnCommandline(query=f, db=poradb, perc_identity=90, outfmt='"6 qseq"', culling_limit='1', num_threads=cpus)
+		
+		stdout, stderr = run_blast.seqBLAST(query=f, db=poradb, blast='blastn', outfmt='"6 qseq"', perc_identity=90, evalue='1e-20', num_threads=cpus, culling_limit=1)
 		if stdout:
 			porAseq = Seq(stdout.strip())
 			porArec = SeqRecord(porAseq, id=f, description='PorA')
@@ -275,7 +282,7 @@ def bxTYPE(f, bxPRIMERS, fHbpDB, NHBADB, NadADB, cpus):
 	global NadASEQS
 	proc = subprocess.Popen(['isPcr', f, bxPRIMERS, 'stdout', '-maxSize=3000', '-tileSize=7', '-minPerfect=8', '-stepSize=3'], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
 	PCRout = proc.communicate()[0]
-	alleleSEQ = StringIO.StringIO()
+	alleleSEQ = StringIO()
 	alleleSEQ.write(PCRout)
 	alleleSEQ.seek(0)
 	for amplicon in SeqIO.parse(alleleSEQ, "fasta"):
@@ -363,7 +370,7 @@ def main():
 	if args.db:
 		DBpath = str(args.db).rstrip('/')
 	else:
-		DBpath = resource_filename(__name__, 'db')
+		DBpath = os.path.join(os.path.dirname(__file__), 'db')
 
 	# Path to database files
 	porA1alleles = os.path.join( DBpath, 'PorA_VR1.fas' )
@@ -463,7 +470,7 @@ def main():
 
 	# Test example to check meningotype works
 	if args.test:
-		TESTpath = resource_filename(__name__, 'test')
+		TESTpath = os.path.join(os.path.dirname(__file__), 'test')
 		testSEQS = [os.path.join( TESTpath, f ) for f in ['A.fna', 'B.fna', 'C.fna', 'W.fna', 'X.fna', 'Y.fna'] ]
 		msg('\033[94mRunning meningotype.py on test examples ... \033[0m')
 		msg('$ meningotype.py A.fna B.fna C.fna W.fna X.fna Y.fna')

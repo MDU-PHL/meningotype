@@ -31,6 +31,7 @@ setup(name='meningotype',
 	install_requires=[
 		'argparse',
 		'BioPython',
+		
 	],
 	test_suite='nose.collector',
 	tests_require=[],

@@ -12,10 +12,11 @@ import sys
 import os
 import subprocess
 from subprocess import Popen
-import StringIO
+from io import StringIO
 from Bio import SeqIO
-from Bio.Blast.Applications import NcbiblastnCommandline
-from pkg_resources import resource_string, resource_filename
+from meningotype import run_blast,nmen
+# from Bio.Blast.Applications import NcbiblastnCommandline
+# from pkg_resources import resource_string, resource_filename
 
 # Standard functions
 # Log a message to stderr
@@ -34,17 +35,18 @@ def ctrA_PCR(f, p, dbpath):
 	resultBLAST = '-'
 	resultPCR = '-'
 	proc = subprocess.Popen(['isPcr', f, ctrAPRIMERS, 'stdout', '-minPerfect=10'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-	PCRout = proc.communicate()[0]
+	PCRout = f"{proc.communicate()[0].decode('utf-8')}"
 	if not PCRout:
-		ctrABLAST = NcbiblastnCommandline(query=f, db=ctrADB, task='blastn', perc_identity=90, evalue='1e-20', outfmt='"6 sseqid pident length"', culling_limit='1')
-		stdout, stderr = ctrABLAST()
+		# ctrABLAST = NcbiblastnCommandline(query=f, db=ctrADB, task='blastn', perc_identity=90, evalue='1e-20', outfmt='"6 sseqid pident length"', culling_limit='1')
+		# ctrABLAST = 
+		stdout, stderr = run_blast.seqBLAST(query=f, db=ctrADB, blast='blastn', outfmt='"6 sseqid pident length"', perc_identity=90, evalue='1e-20', culling_limit=1)
 		if stdout:
 			lenMATCH = 0
 			line = stdout.split('\n')[0]
 			amp = line.split('\t')
 			resultBLAST = amp[1]		# Currently only takes top/first BLAST hit
 	else:
-		alleleSEQ = StringIO.StringIO()
+		alleleSEQ = StringIO()
 		alleleSEQ.write(PCRout)
 		alleleSEQ.seek(0)
 		for amplicon in SeqIO.parse(alleleSEQ, "fasta"):
@@ -76,7 +78,7 @@ def main():
 		'=====================================')
 	args = parser.parse_args()
 	
-	DBpath = resource_filename(__name__, 'db')
+	DBpath = os.path.join(os.path.dirname(__file__), 'db')
 	
 	# Main
 	print('\t'.join(['SAMPLE_ID', 'PCRresult', 'BLASTresult']))
