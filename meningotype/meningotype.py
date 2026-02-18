@@ -4,9 +4,10 @@
 
 # Use modern print function from python 3.x
 from __future__ import print_function
-
+from meningotype import __version__
 # Version
-current_version = '0.8.6'
+# current_version = '0.8.6'
+current_version = __version__
 
 # Usage
 import argparse
