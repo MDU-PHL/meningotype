@@ -10,20 +10,12 @@ import argparse
 from argparse import RawTextHelpFormatter
 import sys
 import os
-<<<<<<< HEAD
 import subprocess
-from subprocess import Popen
+from subprocess import Popen, PIPE
 from io import StringIO
 from Bio import SeqIO
 from meningotype import run_blast,nmen
 
-=======
-from subprocess import Popen, PIPE
-from io import StringIO
-from Bio import SeqIO
-from Bio.Blast.Applications import NcbiblastnCommandline
-from pkg_resources import resource_filename
->>>>>>> 8c5f304259c17583350617cba19ade70c8298e48
 
 # Standard functions
 # Log a message to stderr

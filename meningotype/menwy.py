@@ -18,26 +18,15 @@ from Bio.Blast import NCBIXML
 
 
 # Local modules
-<<<<<<< HEAD
 from meningotype import run_blast,nmen
-=======
-from . import nmen
->>>>>>> 8c5f304259c17583350617cba19ade70c8298e48
 
 # BLAST
 def seqBLAST(f):
 	# Set globals
 	DBpath = os.path.join(os.path.dirname(__file__), 'db')
 	blastdb = os.path.join(DBpath, 'blast', 'synG')
-	# BLAST
-<<<<<<< HEAD
-	# fBLAST = NcbiblastnCommandline(query=f, db=blastdb, outfmt=f"6 qseqid sstrand qstart qend sstart send slen qseq", dust='no', culling_limit=1)
 	
 	stdout, stderr = run_blast.seqBLAST(query=f, db=blastdb, blast='blastn', outfmt=f"6 qseqid sstrand qstart qend sstart send slen qseq", perc_identity=90, evalue='1e-20', num_threads=1, culling_limit=1)
-=======
-	fBLAST = NcbiblastnCommandline(query=f, db=blastdb, outfmt="6 qseqid sstrand qstart qend sstart send slen qseq", dust='no', culling_limit=1)
-	stdout, stderr = fBLAST()
->>>>>>> 8c5f304259c17583350617cba19ade70c8298e48
 
 	blastOUT = stdout.split('\t')
 	if len(blastOUT) == 8:

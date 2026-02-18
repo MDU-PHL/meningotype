@@ -14,13 +14,8 @@ from Bio.SeqRecord import SeqRecord
 # from Bio.Blast.Applications import NcbiblastnCommandline
 from Bio.Blast import NCBIXML
 
-<<<<<<< HEAD
 from meningotype import run_blast,nmen
 
-=======
-# Import local modules
-from . import nmen
->>>>>>> 8c5f304259c17583350617cba19ade70c8298e48
 
 # Standard functions
 # Log a message to stderr
@@ -39,14 +34,9 @@ def porBBLAST(f, blastdb, cpus):
 	blast_pident = '-'
 	blast_cov = '<99'
 	porBRECR = None
-<<<<<<< HEAD
 	# fBLAST = NcbiblastnCommandline(query=f, db=blastdb, outfmt="'6 qseqid sseqid pident length sstrand qstart qend sstart send slen'", dust='no', culling_limit=1, num_threads=cpus)
 	
 	stdout, stderr = run_blast.seqBLAST(query=f, db=blastdb, blast='blastn', outfmt="'6 qseqid sseqid pident length sstrand qstart qend sstart send slen'", perc_identity=90, evalue='1e-20', num_threads=cpus, culling_limit=1)
-=======
-	fBLAST = NcbiblastnCommandline(query=f, db=blastdb, outfmt="6 qseqid sseqid pident length sstrand qstart qend sstart send slen", dust='no', culling_limit=1, num_threads=cpus)
-	stdout, stderr = fBLAST()
->>>>>>> 8c5f304259c17583350617cba19ade70c8298e48
 	blastOUT = stdout.split('\t')
 	# msg(blastOUT)
 	if len(blastOUT) == 10:
