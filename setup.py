@@ -32,7 +32,9 @@ setup(name='meningotype',
 	license='GPLv3',
 	packages=['meningotype'],
 	install_requires=[
+		'argparse',
 		'biopython',
+		
 	],
 	test_suite='nose.collector',
 	tests_require=[],

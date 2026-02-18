@@ -2,6 +2,9 @@
 # Script by Jason Kwong
 # Extracts porB sequence from Neisseria meningitidis
 
+# Use modern print function from python 3.x
+from __future__ import print_function
+
 # Modules
 import argparse
 from argparse import RawTextHelpFormatter
@@ -11,11 +14,12 @@ from io import StringIO
 from Bio import SeqIO
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
-# from Bio.Blast.Applications import NcbiblastnCommandline
+
 from Bio.Blast import NCBIXML
 
-from meningotype import run_blast,nmen
-
+from meningotype import run_blast
+# Import local modules
+# import nmen
 
 # Standard functions
 # Log a message to stderr
@@ -28,17 +32,16 @@ def err(*args, **kwargs):
 	sys.exit(1);
 
 # BLAST
-def porBBLAST(f, blastdb, cpus):
+def porBBLAST(f, blastdb):
 	porB = 'new'
 	blast_qseqid = '-'
 	blast_pident = '-'
 	blast_cov = '<99'
 	porBRECR = None
-	# fBLAST = NcbiblastnCommandline(query=f, db=blastdb, outfmt="'6 qseqid sseqid pident length sstrand qstart qend sstart send slen'", dust='no', culling_limit=1, num_threads=cpus)
-	
-	stdout, stderr = run_blast.seqBLAST(query=f, db=blastdb, blast='blastn', outfmt="'6 qseqid sseqid pident length sstrand qstart qend sstart send slen'", perc_identity=90, evalue='1e-20', num_threads=cpus, culling_limit=1)
+	# fBLAST = NcbiblastnCommandline(query=f, db=blastdb, outfmt="'6 qseqid sseqid pident length sstrand qstart qend sstart send slen'", dust='no', culling_limit=1)
+	# 
+	stdout, stderr = run_blast.seqBLAST(query=f, db=blastdb, blast='blastn', outfmt="'6 qseqid sseqid pident length sstrand qstart qend sstart send slen'", perc_identity=90, evalue='1e-20', num_threads=1, culling_limit=1)
 	blastOUT = stdout.split('\t')
-	# msg(blastOUT)
 	if len(blastOUT) == 10:
 		blast_qseqid = blastOUT[0]
 		blast_sseqid = blastOUT[1]
@@ -69,7 +72,6 @@ def porBBLAST(f, blastdb, cpus):
 			elif blast_cov > 99:
 				porB = ''.join([blast_sseqid, '-like'])
 	result = [f, blast_qseqid, porB, str(blast_pident), str(blast_cov), porBRECR]
-	# msg(result)
 	return result
 
 def main():
@@ -81,7 +83,6 @@ def main():
 	parser.add_argument('fasta', metavar='FASTA', nargs='+', help='FASTA file to search (required)')
 	parser.add_argument('--db', metavar='DB', help='specify custom directory containing allele databases')
 	parser.add_argument('--printseq', action='store_true', help='save porB allele sequences to file (default=off)')
-	parser.add_argument('--cpus', metavar='CPUS', default=1, help='number of cpus to use in BLAST search (default=1)')
 	parser.add_argument('--version', action='version', version=
 		'=====================================\n'
 		'%(prog)s v0.1\n'
@@ -89,7 +90,6 @@ def main():
 		'Dependencies: Python 2.x, BioPython, BLAST\n'
 		'=====================================')
 	args = parser.parse_args()
-	cpus = int(args.cpus)
 	
 	if args.db:
 		DBpath = str(args.db).rstrip('/')
@@ -102,7 +102,7 @@ def main():
 	porBSEQS = []
 	print('\t'.join(['SAMPLE_ID', 'CONTIG', 'PorB', '%ID', 'COV']))
 	for f in args.fasta:
-		result = porBBLAST(f, porBDB, cpus)
+		result = porBBLAST(f, porBDB)
 		print('\t'.join(result[:-1]))
 		porBSEQS.append(result[5])
 

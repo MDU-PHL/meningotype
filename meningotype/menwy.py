@@ -10,23 +10,23 @@ import argparse
 from argparse import RawTextHelpFormatter
 import sys
 import os
+import subprocess
 from Bio.Seq import Seq
 from Bio import SeqIO
-from Bio.Blast.Applications import NcbiblastnCommandline
+
 from Bio.Blast import NCBIXML
-from pkg_resources import resource_string, resource_filename
+
 
 # Local modules
-from . import nmen
+from meningotype import run_blast,nmen
 
 # BLAST
 def seqBLAST(f):
 	# Set globals
-	DBpath = resource_filename(__name__, 'db')
+	DBpath = os.path.join(os.path.dirname(__file__), 'db')
 	blastdb = os.path.join(DBpath, 'blast', 'synG')
-	# BLAST
-	fBLAST = NcbiblastnCommandline(query=f, db=blastdb, outfmt="6 qseqid sstrand qstart qend sstart send slen qseq", dust='no', culling_limit=1)
-	stdout, stderr = fBLAST()
+	
+	stdout, stderr = run_blast.seqBLAST(query=f, db=blastdb, blast='blastn', outfmt=f"6 qseqid sstrand qstart qend sstart send slen qseq", perc_identity=90, evalue='1e-20', num_threads=1, culling_limit=1)
 
 	blastOUT = stdout.split('\t')
 	if len(blastOUT) == 8:
