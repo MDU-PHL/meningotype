@@ -42,5 +42,5 @@ setup(name='meningotype',
 		'console_scripts': ['meningotype=meningotype.meningotype:main'],
 	},
 	include_package_data=True,
-	package_data={"meningotype": ["db/*","db/blast/*"]}
+	package_data={"meningotype": ["db/*","db/blast/*"]},
 	zip_safe=False)
