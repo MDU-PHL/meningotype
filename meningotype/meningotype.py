@@ -18,6 +18,8 @@ import os.path
 import re
 from io import StringIO
 import urllib
+import urllib.request
+from urllib.error import HTTPError
 import subprocess
 from subprocess import Popen, PIPE
 from Bio import SeqIO
@@ -89,7 +91,7 @@ def err(*args, **kwargs):
 def update_db(db_file, db_url):
 	if os.path.isfile(db_file):
 		os.rename(db_file, db_file+'.old')
-	urllib.urlretrieve(db_url, db_file)
+	urllib.request.urlretrieve(db_url, db_file)
 
 # Check files are present
 def check_primer_files(f):
