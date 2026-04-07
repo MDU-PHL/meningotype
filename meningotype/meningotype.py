@@ -127,7 +127,7 @@ def makeblastDB(db, infile, dbtype):
 def seroTYPE(f, seroprimers, allelesdb, cpus):
 	seroCOUNT = []				# Setup list in case there are mixed/multiple hits
 	proc = subprocess.Popen(['isPcr', f, seroprimers, 'stdout', '-minPerfect=10'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-	PCRout = f"{proc.communicate()[0].decode('utf-8')}"
+	PCRout = proc.communicate()[0].decode('utf-8')
 	
 	if not PCRout:
 		sero = None
@@ -171,7 +171,7 @@ def seroWY(f, sero):
 
 def nm_mlst(f):
 	proc = subprocess.Popen(['mlst', '--scheme=neisseria', '--quiet', f], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-	PCRout = proc.communicate()[0]
+	PCRout = proc.communicate()[0].decode('utf-8')
 	return PCRout.split('\t')[2]
 
 def finetypeBLAST(s, db, cpus):
@@ -232,7 +232,7 @@ def fineTYPE(f, finetypeprimers, poradb, pora1db, pora2db, fetdb, cpus):
 	global porASEQS
 	global fetASEQS
 	proc = subprocess.Popen(['isPcr', f, finetypeprimers, 'stdout', '-maxSize=800', '-tileSize=10', '-minPerfect=8', '-stepSize=3'], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
-	PCRout = proc.communicate()[0]
+	PCRout = proc.communicate()[0].decode('utf-8')
 	alleleSEQ = StringIO()
 	alleleSEQ.write(PCRout)
 	alleleSEQ.seek(0)
@@ -282,7 +282,7 @@ def bxTYPE(f, bxPRIMERS, fHbpDB, NHBADB, NadADB, cpus):
 	global NHBASEQS
 	global NadASEQS
 	proc = subprocess.Popen(['isPcr', f, bxPRIMERS, 'stdout', '-maxSize=3000', '-tileSize=7', '-minPerfect=8', '-stepSize=3'], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
-	PCRout = proc.communicate()[0]
+	PCRout = proc.communicate()[0].decode('utf-8')
 	alleleSEQ = StringIO()
 	alleleSEQ.write(PCRout)
 	alleleSEQ.seek(0)
