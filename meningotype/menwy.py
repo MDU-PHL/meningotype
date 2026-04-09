@@ -26,7 +26,7 @@ def seqBLAST(f):
 	DBpath = os.path.join(os.path.dirname(__file__), 'db')
 	blastdb = os.path.join(DBpath, 'blast', 'synG')
 	
-	stdout, stderr = run_blast.seqBLAST(query=f, db=blastdb, blast='blastn', outfmt=f"6 qseqid sstrand qstart qend sstart send slen qseq", perc_identity=90, evalue='1e-20', num_threads=1, culling_limit=1)
+	stdout, stderr = run_blast.seqBLAST(query=f, db=blastdb, blast='blastn', outfmt="6 qseqid sstrand qstart qend sstart send slen qseq", perc_identity=90, evalue='1e-20', num_threads=1, culling_limit=1)
 
 	blastOUT = stdout.split('\t')
 	if len(blastOUT) == 8:
