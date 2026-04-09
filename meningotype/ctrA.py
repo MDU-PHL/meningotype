@@ -38,21 +38,19 @@ def ctrA_PCR(f, p, dbpath):
     proc = Popen(['isPcr', f, ctrAPRIMERS, 'stdout', '-minPerfect=10'], stdout=PIPE, stderr=PIPE)
     PCRout = proc.communicate()[0].decode('UTF-8')
     if not PCRout:
-        ctrABLAST = NcbiblastnCommandline(
+        stdout, stderr = run_blast.seqBLAST(
         	query=f,
         	db=ctrADB,
-        	task='blastn',
+        	blast='blastn',
         	perc_identity=90,
         	evalue='1e-20',
-        	outfmt='"6 sseqid pident length"',
-        	culling_limit='1')
+        	outfmt='6 sseqid pident length',
+        	culling_limit=1)
 
-        stdout, stderr = ctrABLAST()
-        # msg(stdout)
         if stdout:
             line = stdout.split('\n')[0]
             amp = line.split('\t')
-            resultBLAST = amp[1] # Currently only takes top/first BLAST hit
+            resultBLAST = amp[0] # Currently only takes top/first BLAST hit
     else:
         alleleSEQ = StringIO()
         alleleSEQ.write(PCRout)

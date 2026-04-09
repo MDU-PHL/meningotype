@@ -40,7 +40,7 @@ def porBBLAST(f, blastdb):
 	porBRECR = None
 	# fBLAST = NcbiblastnCommandline(query=f, db=blastdb, outfmt="'6 qseqid sseqid pident length sstrand qstart qend sstart send slen'", dust='no', culling_limit=1)
 	# 
-	stdout, stderr = run_blast.seqBLAST(query=f, db=blastdb, blast='blastn', outfmt="'6 qseqid sseqid pident length sstrand qstart qend sstart send slen'", perc_identity=90, evalue='1e-20', num_threads=1, culling_limit=1)
+	stdout, stderr = run_blast.seqBLAST(query=f, db=blastdb, blast='blastn', outfmt="6 qseqid sseqid pident length sstrand qstart qend sstart send slen", perc_identity=90, evalue='1e-20', num_threads=1, culling_limit=1)
 	blastOUT = stdout.split('\t')
 	if len(blastOUT) == 10:
 		blast_qseqid = blastOUT[0]

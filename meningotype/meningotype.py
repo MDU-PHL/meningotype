@@ -18,6 +18,8 @@ import os.path
 import re
 from io import StringIO
 import urllib
+import urllib.request
+from urllib.error import HTTPError
 import subprocess
 from subprocess import Popen, PIPE
 from Bio import SeqIO
@@ -89,7 +91,7 @@ def err(*args, **kwargs):
 def update_db(db_file, db_url):
 	if os.path.isfile(db_file):
 		os.rename(db_file, db_file+'.old')
-	urllib.urlretrieve(db_url, db_file)
+	urllib.request.urlretrieve(db_url, db_file)
 
 # Check files are present
 def check_primer_files(f):
@@ -127,13 +129,13 @@ def makeblastDB(db, infile, dbtype):
 def seroTYPE(f, seroprimers, allelesdb, cpus):
 	seroCOUNT = []				# Setup list in case there are mixed/multiple hits
 	proc = subprocess.Popen(['isPcr', f, seroprimers, 'stdout', '-minPerfect=10'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-	PCRout = f"{proc.communicate()[0].decode('utf-8')}"
+	PCRout = proc.communicate()[0].decode('utf-8')
 	
 	if not PCRout:
 		sero = None
 		# seroBLAST = NcbiblastnCommandline(query=f, db=allelesdb, task='blastn', perc_identity=90, evalue='1e-20', outfmt='"6 sseqid pident length"', culling_limit='1', num_threads=cpus)
 		# seroBLAST = 
-		stdout, stderr = run_blast.seqBLAST(query=f, db=allelesdb, blast='blastn', outfmt='"6 sseqid pident length"', perc_identity=90, evalue='1e-20', num_threads=cpus, culling_limit=1)
+		stdout, stderr = run_blast.seqBLAST(query=f, db=allelesdb, blast='blastn', outfmt="6 sseqid pident length", perc_identity=90, evalue='1e-20', num_threads=cpus, culling_limit=1)
 		lenMATCH = 0
 		line = stdout.split('\n')[0]
 		amp = line.split('\t')
@@ -171,7 +173,7 @@ def seroWY(f, sero):
 
 def nm_mlst(f):
 	proc = subprocess.Popen(['mlst', '--scheme=neisseria', '--quiet', f], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-	PCRout = proc.communicate()[0]
+	PCRout = proc.communicate()[0].decode('utf-8')
 	return PCRout.split('\t')[2]
 
 def finetypeBLAST(s, db, cpus):
@@ -179,7 +181,7 @@ def finetypeBLAST(s, db, cpus):
 	allele = None
 	# ftBLAST = NcbiblastxCommandline(query='-', db=db, outfmt='"6 qseqid sseqid pident length slen gaps nident evalue"', seg='no', query_gencode='11', matrix='PAM30', ungapped='true', comp_based_stats='0', evalue='1e-2', num_threads=cpus)		# blastx command to fix finding short sequences
 	# ftBLAST = 
-	stdout, stderr = run_blast.seqBLAST(query='-', db=db, blast='blastx', outfmt='"6 qseqid sseqid pident length slen gaps nident evalue"', seg='no', query_gencode='11', matrix='PAM30', ungapped='true', comp_based_stats='0', evalue='1e-2', num_threads=cpus, fasta_data=str(s.format('fasta')))
+	stdout, stderr = run_blast.seqBLAST(query='-', db=db, blast='blastx', outfmt="6 qseqid sseqid pident length slen gaps nident evalue", evalue='1e-2', num_threads=cpus, fasta_data=str(s.format('fasta')), extra_flags=["-seg", "no", "-query_gencode", "11", "-matrix", "PAM30", "-ungapped", "-comp_based_stats", "0"])
 	if stdout:
 		BLASTout = stdout.split('\n')
 		lenMATCH = 0
@@ -207,7 +209,7 @@ def bxtypeBLAST(s, db, cpus):
 	allele = None
 	# bxBLAST = NcbiblastxCommandline(query='-', db=db, outfmt='"6 qseqid sseqid pident length slen gaps nident evalue"', seg='no', culling_limit='1', evalue='1e-100', query_gencode='11', num_threads=cpus)
 	
-	stdout, stderr = run_blast.seqBLAST(query='-', db=db, blast='blastx', outfmt='"6 qseqid sseqid pident length slen gaps nident evalue"', seg='no', culling_limit='1', evalue='1e-100', query_gencode='11', num_threads=cpus, fasta_data=str(s.format('fasta')))
+	stdout, stderr = run_blast.seqBLAST(query='-', db=db, blast='blastx', outfmt="6 qseqid sseqid pident length slen gaps nident evalue", culling_limit=1, evalue='1e-100', num_threads=cpus, fasta_data=str(s.format('fasta')), extra_flags=["-seg", "no", "-query_gencode", "11"])
 	if stdout:
 		BLASTout = stdout.split('\n')
 		lenMATCH = 0
@@ -232,7 +234,7 @@ def fineTYPE(f, finetypeprimers, poradb, pora1db, pora2db, fetdb, cpus):
 	global porASEQS
 	global fetASEQS
 	proc = subprocess.Popen(['isPcr', f, finetypeprimers, 'stdout', '-maxSize=800', '-tileSize=10', '-minPerfect=8', '-stepSize=3'], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
-	PCRout = proc.communicate()[0]
+	PCRout = proc.communicate()[0].decode('utf-8')
 	alleleSEQ = StringIO()
 	alleleSEQ.write(PCRout)
 	alleleSEQ.seek(0)
@@ -257,7 +259,7 @@ def fineTYPE(f, finetypeprimers, poradb, pora1db, pora2db, fetdb, cpus):
 	if len(porACOUNT) == 0:
 		# porseqBLAST = NcbiblastnCommandline(query=f, db=poradb, perc_identity=90, outfmt='"6 qseq"', culling_limit='1', num_threads=cpus)
 		
-		stdout, stderr = run_blast.seqBLAST(query=f, db=poradb, blast='blastn', outfmt='"6 qseq"', perc_identity=90, evalue='1e-20', num_threads=cpus, culling_limit=1)
+		stdout, stderr = run_blast.seqBLAST(query=f, db=poradb, blast='blastn', outfmt="6 qseq", perc_identity=90, evalue='1e-20', num_threads=cpus, culling_limit=1)
 		if stdout:
 			porAseq = Seq(stdout.strip())
 			porArec = SeqRecord(porAseq, id=f, description='PorA')
@@ -282,7 +284,7 @@ def bxTYPE(f, bxPRIMERS, fHbpDB, NHBADB, NadADB, cpus):
 	global NHBASEQS
 	global NadASEQS
 	proc = subprocess.Popen(['isPcr', f, bxPRIMERS, 'stdout', '-maxSize=3000', '-tileSize=7', '-minPerfect=8', '-stepSize=3'], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
-	PCRout = proc.communicate()[0]
+	PCRout = proc.communicate()[0].decode('utf-8')
 	alleleSEQ = StringIO()
 	alleleSEQ.write(PCRout)
 	alleleSEQ.seek(0)
