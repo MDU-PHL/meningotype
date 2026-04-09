@@ -135,7 +135,7 @@ def seroTYPE(f, seroprimers, allelesdb, cpus):
 		sero = None
 		# seroBLAST = NcbiblastnCommandline(query=f, db=allelesdb, task='blastn', perc_identity=90, evalue='1e-20', outfmt='"6 sseqid pident length"', culling_limit='1', num_threads=cpus)
 		# seroBLAST = 
-		stdout, stderr = run_blast.seqBLAST(query=f, db=allelesdb, blast='blastn', outfmt='"6 sseqid pident length"', perc_identity=90, evalue='1e-20', num_threads=cpus, culling_limit=1)
+		stdout, stderr = run_blast.seqBLAST(query=f, db=allelesdb, blast='blastn', outfmt="6 sseqid pident length", perc_identity=90, evalue='1e-20', num_threads=cpus, culling_limit=1)
 		lenMATCH = 0
 		line = stdout.split('\n')[0]
 		amp = line.split('\t')
@@ -181,7 +181,7 @@ def finetypeBLAST(s, db, cpus):
 	allele = None
 	# ftBLAST = NcbiblastxCommandline(query='-', db=db, outfmt='"6 qseqid sseqid pident length slen gaps nident evalue"', seg='no', query_gencode='11', matrix='PAM30', ungapped='true', comp_based_stats='0', evalue='1e-2', num_threads=cpus)		# blastx command to fix finding short sequences
 	# ftBLAST = 
-	stdout, stderr = run_blast.seqBLAST(query='-', db=db, blast='blastx', outfmt='"6 qseqid sseqid pident length slen gaps nident evalue"', seg='no', query_gencode='11', matrix='PAM30', ungapped='true', comp_based_stats='0', evalue='1e-2', num_threads=cpus, fasta_data=str(s.format('fasta')))
+	stdout, stderr = run_blast.seqBLAST(query='-', db=db, blast='blastx', outfmt="6 qseqid sseqid pident length slen gaps nident evalue", evalue='1e-2', num_threads=cpus, fasta_data=str(s.format('fasta')), extra_flags=["-seg", "no", "-query_gencode", "11", "-matrix", "PAM30", "-ungapped", "-comp_based_stats", "0"])
 	if stdout:
 		BLASTout = stdout.split('\n')
 		lenMATCH = 0
@@ -209,7 +209,7 @@ def bxtypeBLAST(s, db, cpus):
 	allele = None
 	# bxBLAST = NcbiblastxCommandline(query='-', db=db, outfmt='"6 qseqid sseqid pident length slen gaps nident evalue"', seg='no', culling_limit='1', evalue='1e-100', query_gencode='11', num_threads=cpus)
 	
-	stdout, stderr = run_blast.seqBLAST(query='-', db=db, blast='blastx', outfmt='"6 qseqid sseqid pident length slen gaps nident evalue"', seg='no', culling_limit='1', evalue='1e-100', query_gencode='11', num_threads=cpus, fasta_data=str(s.format('fasta')))
+	stdout, stderr = run_blast.seqBLAST(query='-', db=db, blast='blastx', outfmt="6 qseqid sseqid pident length slen gaps nident evalue", culling_limit=1, evalue='1e-100', num_threads=cpus, fasta_data=str(s.format('fasta')), extra_flags=["-seg", "no", "-query_gencode", "11"])
 	if stdout:
 		BLASTout = stdout.split('\n')
 		lenMATCH = 0
@@ -259,7 +259,7 @@ def fineTYPE(f, finetypeprimers, poradb, pora1db, pora2db, fetdb, cpus):
 	if len(porACOUNT) == 0:
 		# porseqBLAST = NcbiblastnCommandline(query=f, db=poradb, perc_identity=90, outfmt='"6 qseq"', culling_limit='1', num_threads=cpus)
 		
-		stdout, stderr = run_blast.seqBLAST(query=f, db=poradb, blast='blastn', outfmt='"6 qseq"', perc_identity=90, evalue='1e-20', num_threads=cpus, culling_limit=1)
+		stdout, stderr = run_blast.seqBLAST(query=f, db=poradb, blast='blastn', outfmt="6 qseq", perc_identity=90, evalue='1e-20', num_threads=cpus, culling_limit=1)
 		if stdout:
 			porAseq = Seq(stdout.strip())
 			porArec = SeqRecord(porAseq, id=f, description='PorA')
